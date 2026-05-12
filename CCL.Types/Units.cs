@@ -45,6 +45,11 @@ namespace CCL.Types
         public const float KMHtoMS = 1.0f / MStoKMH;
         public const float MPHtoKMH = 1.609344f;
 
+        // Mass.
+        public const float LongTtoKG = 1016.047f;
+        public const float ShortTtoKG = 907.185f;
+        public const float LBtoKG = 0.45359237f;
+
         // Force.
         public const float LBFtoNewton = 4.4482216152605f;
         public const float KGFtoNewton = 9.806650f;

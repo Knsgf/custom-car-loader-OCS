@@ -292,6 +292,14 @@ namespace CCL.Importer.Processing
                 audio.cylinderCockControlPortId = item.cylinderCockControlPortId;
                 audio.ashesInPipesPortId = item.ashesInPipesPortId;
 
+                audio.mediumPressureThreshold = item.mediumPressureThreshold;
+                audio.highPressureThreshold = item.highPressureThreshold;
+
+                if (item.customVolumeCurve)
+                {
+                    audio.pressureToVolumeCurve = item.pressureToVolumeCurve;
+                }
+
                 item.InstancedObject = audio.gameObject;
                 Object.Destroy(item);
             }

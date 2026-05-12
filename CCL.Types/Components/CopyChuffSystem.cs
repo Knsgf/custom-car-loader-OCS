@@ -29,6 +29,13 @@ namespace CCL.Types.Components
         [PortId(DVPortValueType.STATE, false)]
         public string ashesInPipesPortId = string.Empty;
 
+        [Header("Individual Chuffs")]
+        public bool customVolumeCurve = false;
+        [EnableIf(nameof(customVolumeCurve))]
+        public AnimationCurve pressureToVolumeCurve = null!;
+        public float mediumPressureThreshold = 6;
+        public float highPressureThreshold = 9;
+
         public GameObject? InstancedObject { get; set; }
         public bool CanReplace => InstancedObject != null;
 
@@ -41,5 +48,55 @@ namespace CCL.Types.Components
             new PortIdField(this, nameof(cylinderCockControlPortId), cylinderCockControlPortId, DVPortValueType.CONTROL),
             new PortIdField(this, nameof(ashesInPipesPortId), ashesInPipesPortId, DVPortValueType.STATE),
         };
+
+        private static AnimationCurve DefaultCurve => new AnimationCurve()
+        {
+            preWrapMode = WrapMode.ClampForever,
+            postWrapMode = WrapMode.ClampForever,
+            keys = new[]
+                {
+                    new Keyframe
+                    {
+                        time = 0.0f,
+                        value = 0.0f,
+                        inTangent = -0.008165377f,
+                        outTangent = -0.008165377f,
+                        inWeight = 0.0f,
+                        outWeight = 1.0f,
+                    },
+                    new Keyframe
+                    {
+                        time = 1.0f,
+                        value = 0.0f,
+                        inTangent = 0.0f,
+                        outTangent = 0.0f,
+                        inWeight = 1 / 3f,
+                        outWeight = 0.37559202f,
+                    },
+                    new Keyframe
+                    {
+                        time = 2.0f,
+                        value = 0.6986543f,
+                        inTangent = 0.09688346f,
+                        outTangent = 0.09688346f,
+                        inWeight = 0.2691377f,
+                        outWeight = 0.040892176f,
+                    },
+                    new Keyframe
+                    {
+                        time = 11.0f,
+                        value = 1.0f,
+                        inTangent = -0.0f,
+                        outTangent = -0.0f,
+                        inWeight = 0.091343455f,
+                        outWeight = 0.0f,
+                    }
+                }
+        };
+
+        private void OnReset()
+        {
+            pressureToVolumeCurve = DefaultCurve;
+        }
     }
 }

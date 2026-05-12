@@ -28,6 +28,12 @@ namespace CCL.Creator.Wizards
                 new ExtraUnit("Miles/hour", Units.MPHtoKMH),
                 new ExtraUnit("Metres/second", Units.KMHtoMS)),
 
+            new ConvertBase("Mass", "Kilogram",
+                new ExtraUnit("Pounds", Units.LBtoKG),
+                new ExtraUnit("Tonnes", Units.FromKilo),
+                new ExtraUnit("Long Tons", Units.LongTtoKG),
+                new ExtraUnit("Short Tons", Units.ShortTtoKG)),
+
             new ConvertBase("Force", "Newtons",
                 new ExtraUnit("Pounds-Force", Units.LBFtoNewton),
                 new ExtraUnit("Kilograms-Force", Units.KGFtoNewton)),
