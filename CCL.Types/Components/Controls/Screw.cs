@@ -10,10 +10,10 @@ namespace CCL.Types.Components.Controls
         private const int ANGLE = 360 / GIZMO_SEGMENTS_PER_REV;
 
         [Min(1)]
-        public int Revolutions = 10;
+        public int Revolutions = 4;
         public bool InvertDirection = true;
         public float ScrollWheelHoverScroll = 100;
-        public float Travel = 1;
+        public float Travel = 0.5f;
 
         [Header("RigidBody")]
         public float Mass = 1;

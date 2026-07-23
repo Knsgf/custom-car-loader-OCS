@@ -31,8 +31,10 @@ namespace CCL.Types.Proxies.Ports
 
         public override IEnumerable<PortDefinition> ExposedPorts => Ports.Select(p => p.Port);
 
-        public void OnValidate()
+        public override void OnValidate()
         {
+            base.OnValidate();
+
             _json = JSONObject.ToJson(Ports);
         }
 

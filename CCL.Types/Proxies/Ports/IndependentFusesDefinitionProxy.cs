@@ -19,8 +19,10 @@ namespace CCL.Types.Proxies.Ports
             fuses = JSONObject.FromJson<FuseDefinition[]>(fusesJson);
         }
 
-        public void OnValidate()
+        public override void OnValidate()
         {
+            base.OnValidate();
+
             fusesJson = JSONObject.ToJson(fuses);
         }
 

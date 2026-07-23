@@ -61,8 +61,10 @@ namespace CCL.Types.Proxies.Simulation.Steam
             new PortReferenceDefinition(DVPortValueType.RPM, "WHEEL_RPM", false)
         };
 
-        public void OnValidate()
+        public override void OnValidate()
         {
+            base.OnValidate();
+
             oilingPoints = new OilingPointDefinition[OilingPointCount];
 
             for (int i = 0; i < OilingPointCount; i++)

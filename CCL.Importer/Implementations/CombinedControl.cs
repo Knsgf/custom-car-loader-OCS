@@ -36,6 +36,7 @@ namespace CCL.Importer.Implementations
             }
             else if (value == 0)
             {
+                CombinedIn.Value = NeutralValue;
                 CurrentMode.Value = 0;
             }
         }
@@ -49,6 +50,7 @@ namespace CCL.Importer.Implementations
             }
             else if (value == 0)
             {
+                CombinedIn.Value = NeutralValue;
                 CurrentMode.Value = 0;
             }
         }
