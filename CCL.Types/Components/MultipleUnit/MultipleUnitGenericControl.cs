@@ -14,6 +14,9 @@ namespace CCL.Types.Components.MultipleUnit
         public bool ResetOnConnectionChange = true;
         [EnableIf(nameof(ResetOnConnectionChange))]
         public float DefaultValue = 0;
+        public bool EnsureNotches = false;
+        [EnableIf(nameof(EnsureNotches)), Min(2)]
+        public int Notches = 2;
 
         public IEnumerable<PortIdField> ExposedPortIdFields => new[]
         {

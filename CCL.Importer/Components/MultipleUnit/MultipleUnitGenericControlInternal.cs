@@ -15,6 +15,8 @@ namespace CCL.Importer.Components.MultipleUnit
         public string PortId = string.Empty;
         public bool ResetOnConnectionChange = true;
         public float DefaultValue = 0;
+        public bool EnsureNotches = false;
+        public int Notches = 2;
 
         private Port _port = null!;
 
@@ -34,7 +36,7 @@ namespace CCL.Importer.Components.MultipleUnit
 
         public override void SetValue(MultipleUnitGenericControlInternal source)
         {
-            _port.Value = source._port.Value;
+            _port.Value = EnsureNotches ? Mathf.RoundToInt(source._port.Value * (Notches - 1)) / (Notches - 1f) : source._port.Value;
         }
 
         protected override void ConnectionChanged(bool connected, bool playAudio)

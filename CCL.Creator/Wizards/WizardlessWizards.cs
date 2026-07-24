@@ -20,6 +20,13 @@ namespace CCL.Creator.Wizards
                 "Good Stuff");
         }
 
+        // Ditto.
+        [MenuItem("CCL/Wiki", false, MenuOrdering.MenuBar.Wiki)]
+        public static void Wiki(MenuCommand command)
+        {
+            Application.OpenURL("https://github.com/derail-valley-modding/custom-car-loader/wiki");
+        }
+
         [MenuItem("GameObject/CCL/Add Cab", false, MenuOrdering.Body.Cab)]
         public static void CreateCab(MenuCommand command)
         {
