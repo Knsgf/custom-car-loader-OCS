@@ -30,8 +30,10 @@ namespace CCL.Types.Proxies.Ports
 
         public override IEnumerable<PortReferenceDefinition> ExposedPortReferences => readers;
 
-        public void OnValidate()
+        public override void OnValidate()
         {
+            base.OnValidate();
+
             _readers = JSONObject.ToJson(readers);
             _out = JSONObject.ToJson(outReadOut);
         }

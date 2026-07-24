@@ -20,8 +20,10 @@ namespace CCL.Types.Proxies.Ports
             port = JSONObject.FromJson(_json, () => port);
         }
 
-        public void OnValidate()
+        public override void OnValidate()
         {
+            base.OnValidate();
+
             _json = JSONObject.ToJson(port);
         }
     }

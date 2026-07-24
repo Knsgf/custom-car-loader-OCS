@@ -26,8 +26,10 @@ namespace CCL.Types.Components.Simulation
         [HideInInspector, SerializeField]
         private string? _json;
 
-        public void OnValidate()
+        public override void OnValidate()
         {
+            base.OnValidate();
+
             _json = JSONObject.ToJson(FusesToInvert);
         }
 

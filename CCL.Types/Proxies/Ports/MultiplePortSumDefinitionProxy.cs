@@ -20,8 +20,10 @@ namespace CCL.Types.Proxies.Ports
 
         public override IEnumerable<PortReferenceDefinition> ExposedPortReferences => inputs;
 
-        public void OnValidate()
+        public override void OnValidate()
         {
+            base.OnValidate();
+
             _jsonIn = JSONObject.ToJson(inputs);
             _jsonOut = JSONObject.ToJson(output);
         }

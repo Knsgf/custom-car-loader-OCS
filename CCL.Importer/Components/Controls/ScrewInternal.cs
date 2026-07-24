@@ -8,10 +8,10 @@ namespace CCL.Importer.Components.Controls
     {
         public StaticInteractionArea nonVrStaticInteractionArea = null!;
 
-        public int Revolutions = 10;
+        public int Revolutions = 4;
         public bool InvertDirection = true;
         public float ScrollWheelHoverScroll = 100;
-        public float Travel = 1;
+        public float Travel = 0.5f;
 
         public float Mass = 1;
         public float AngularDrag = 1;

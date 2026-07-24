@@ -118,6 +118,8 @@ namespace CCL.Creator.Wizards.SimSetup
             // Only difference to DE6.
             tm.configurations = tm.configurations.Take(1).ToArray();
             tm.configurations[0].forwardTransition.thresholdValue = 0;
+            tm.overheatingTemperatureThreshold = float.PositiveInfinity;
+            tm.overheatingMaxTime = float.PositiveInfinity;
         }
     }
 }

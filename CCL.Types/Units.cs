@@ -32,6 +32,8 @@ namespace CCL.Types
 
         public const float ToKilo = 0.001f;
         public const float FromKilo = 1000f;
+        public const float ToMega = 0.000001f;
+        public const float FromMega = 1000000f;
 
         // Length.
         public const float InchToMetre = 0.0254f;
@@ -42,6 +44,11 @@ namespace CCL.Types
         public const float MStoKMH = 3.6f;
         public const float KMHtoMS = 1.0f / MStoKMH;
         public const float MPHtoKMH = 1.609344f;
+
+        // Mass.
+        public const float LongTtoKG = 1016.047f;
+        public const float ShortTtoKG = 907.185f;
+        public const float LBtoKG = 0.45359237f;
 
         // Force.
         public const float LBFtoNewton = 4.4482216152605f;

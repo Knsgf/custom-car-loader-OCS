@@ -52,8 +52,10 @@ namespace CCL.Types.Proxies.Simulation
 
         public string GetFullReaderPortRefId() => GetFullPortId(inputReader.ID);
 
-        public void OnValidate()
+        public override void OnValidate()
         {
+            base.OnValidate();
+
             _json = JSONObject.ToJson(inputReader);
         }
 

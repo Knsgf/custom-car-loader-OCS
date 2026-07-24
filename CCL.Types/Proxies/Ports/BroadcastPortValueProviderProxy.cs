@@ -12,7 +12,7 @@ namespace CCL.Types.Proxies.Ports
         public string connectionTag = string.Empty;
 
         public IEnumerable<PortIdField> ExposedPortIdFields => new[]
-{
+        {
             new PortIdField(this, nameof(providerPortId), providerPortId),
         };
     }

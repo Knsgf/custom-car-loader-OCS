@@ -159,8 +159,10 @@ namespace CCL.Types.Proxies.Ports
             return result;
         }
 
-        public void OnValidate()
+        public override void OnValidate()
         {
+            base.OnValidate();
+
             _inPorts = JSONObject.ToJson(inputPorts);
             _outPort = JSONObject.ToJson(outputPort);
 

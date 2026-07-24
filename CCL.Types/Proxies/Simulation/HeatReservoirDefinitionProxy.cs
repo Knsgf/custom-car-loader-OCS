@@ -34,14 +34,17 @@ namespace CCL.Types.Proxies.Simulation
             "TEMPERATURE"
         };
 
-        public void OnValidate()
+        public override void OnValidate()
         {
+            base.OnValidate();
+
             if (inputs == null || inputs.Length != inputCount)
             {
                 inputs = Enumerable.Range(0, inputCount)
                     .Select(i => new PortReferenceDefinition(DVPortValueType.HEAT_RATE, $"HEAT_IN_{i}"))
                     .ToArray();
             }
+
             _inputsJson = JSONObject.ToJson(inputs);
         }
 

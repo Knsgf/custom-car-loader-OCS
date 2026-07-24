@@ -76,8 +76,10 @@ namespace CCL.Types.Proxies.Simulation.Diesel
             "OUTPUT_SHAFT_TORQUE"
         };
 
-        public void OnValidate()
+        public override void OnValidate()
         {
+            base.OnValidate();
+
             _configJson = JSONObject.ToJson(configs);
         }
 

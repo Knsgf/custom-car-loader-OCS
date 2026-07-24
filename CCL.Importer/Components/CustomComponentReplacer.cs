@@ -100,6 +100,7 @@ namespace CCL.Importer.Components
         private void MapMultipleUnit()
         {
             CreateMap<MultipleUnitCombinedThrottleDynamicBrakeMode, MultipleUnitCombinedThrottleDynamicBrakeModeInternal>().AutoCacheAndMap();
+            CreateMap<MultipleUnitGenericControl, MultipleUnitGenericControlInternal>().AutoCacheAndMap();
         }
 
         private void MapControllers()
