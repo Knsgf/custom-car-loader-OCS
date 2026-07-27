@@ -546,3 +546,42 @@ Directory.Build.targets
 
 # Jetbrains Rider
 .idea
+CCL-test/Library
+
+# ===========================
+# Default Collab Ignore Rules
+# ===========================
+
+# OS Generated
+# ============
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+[Tt]humbs.db
+[Dd]esktop.ini
+
+# Visual Studio / MonoDevelop generated
+# =====================================
+CCL-test/[Ee]xported[Oo]bj/
+*.userprefs
+*.csproj
+*.pidb
+*.suo
+*.sln
+*.user
+*.unityproj
+*.booproj
+
+# Unity generated
+# ===============
+CCL-test/[Oo]bj/
+CCL-test/[Bb]uild
+sysinfo.txt
+*.stackdump
+CCL-test/.collabignore
+CCL-test/.vsconfig
+
+!CCL-test/[Pp]ackages/*
