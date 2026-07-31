@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using CCL.Importer.Components.Controllers;
 using CCL.Importer.Components.Controls;
 using CCL.Importer.Components.Headlights;
@@ -82,6 +82,7 @@ namespace CCL.Importer.Components
 
             // Electric.
             CreateMap<BatteryCustomCurveDefinition, BatteryCustomCurveDefinitionInternal>().AutoCacheAndMap();
+            CreateMap<ElTestDefinition, ElTestDefinitionInternal>().AutoCacheAndMap();
         }
 
         private void FuseInverterAfter(FuseInverterDefinition fake, FuseInverterDefinitionInternal real)

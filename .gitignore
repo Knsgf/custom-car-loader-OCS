@@ -585,3 +585,4 @@ CCL-test/.collabignore
 CCL-test/.vsconfig
 
 !CCL-test/[Pp]ackages/*
+/CCL-test/Temp
