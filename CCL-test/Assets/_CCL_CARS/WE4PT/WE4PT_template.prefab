@@ -195,8 +195,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1110880284}
-  - component: {fileID: 1110880285}
-  - component: {fileID: 7604816684975759087}
   m_Layer: 0
   m_Name: Pivot1
   m_TagString: Untagged
@@ -220,42 +218,6 @@ Transform:
   m_Father: {fileID: 2554032659400710962}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: -5, y: 0, z: 0}
---- !u!95 &1110880285
-Animator:
-  serializedVersion: 3
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1110880283}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: c307c49bcd9c6c6488c6cd9d23e7667a, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
---- !u!114 &7604816684975759087
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1110880283}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: -1105344392, guid: b247489fc36790c41b197410cd8386d9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  updateType: 0
-  portId: throttle.EXT_IN
-  parameterName: 
-  valueMultiplier: 0.99
-  valueOffset: 0
 --- !u!1 &22802729977305306
 GameObject:
   m_ObjectHideFlags: 0
@@ -2803,7 +2765,6 @@ MonoBehaviour:
   - {fileID: 8266819287410642514}
   - {fileID: 7973733510547097469}
   - {fileID: 5313591845246324350}
-  - {fileID: 8537727950496778279}
   connections:
   - fullPortIdOut: tm.TORQUE_OUT
     fullPortIdIn: transmission.TORQUE_IN
@@ -2909,6 +2870,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2554032659400710962}
+  - component: {fileID: 639763462}
+  - component: {fileID: 639763461}
   m_Layer: 0
   m_Name: Pantograph
   m_TagString: Untagged
@@ -2932,6 +2895,42 @@ Transform:
   m_Father: {fileID: 1816125112534472650}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &639763462
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2719001739000726832}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: c307c49bcd9c6c6488c6cd9d23e7667a, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &639763461
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2719001739000726832}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1105344392, guid: b247489fc36790c41b197410cd8386d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  updateType: 0
+  portId: throttle.EXT_IN
+  parameterName: 
+  valueMultiplier: 0.99
+  valueOffset: 0
 --- !u!1 &2738137500412509278
 GameObject:
   m_ObjectHideFlags: 0
@@ -7130,7 +7129,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4608320065283374448}
-  - component: {fileID: 8537727950496778279}
   m_Layer: 0
   m_Name: TestComponent
   m_TagString: Untagged
@@ -7152,20 +7150,6 @@ Transform:
   m_Father: {fileID: 5672157207868484993}
   m_RootOrder: 30
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8537727950496778279
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8798314021946669981}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: -540951418, guid: b247489fc36790c41b197410cd8386d9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ID: TestComponent
-  f: 2
 --- !u!1 &8851952941036508090
 GameObject:
   m_ObjectHideFlags: 0
