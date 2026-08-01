@@ -1188,6 +1188,7 @@ Transform:
   m_Children:
   - {fileID: 7457162555082665479}
   - {fileID: 2554032659400710962}
+  - {fileID: 1911731981706231039}
   m_Father: {fileID: 6923559146813231640}
   m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2715,6 +2716,36 @@ Transform:
   m_Father: {fileID: 6923559146813231640}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2627685433538228628
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1911731981706231039}
+  m_Layer: 0
+  m_Name: LeftTip (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1911731981706231039
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2627685433538228628}
+  m_LocalRotation: {x: 0.000000029802326, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.56, y: 6.6848903, z: -6.358}
+  m_LocalScale: {x: 1, y: 0.050000012, z: 0.050000004}
+  m_Children: []
+  m_Father: {fileID: 1816125112534472650}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2678495122863947687
 GameObject:
   m_ObjectHideFlags: 0
@@ -2825,6 +2856,7 @@ MonoBehaviour:
   - {fileID: 8266819287410642514}
   - {fileID: 7973733510547097469}
   - {fileID: 5313591845246324350}
+  - {fileID: 4849090425793437725}
   connections:
   - fullPortIdOut: tm.TORQUE_OUT
     fullPortIdIn: transmission.TORQUE_IN
@@ -7191,6 +7223,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4608320065283374448}
+  - component: {fileID: 4849090425793437725}
   m_Layer: 0
   m_Name: TestComponent
   m_TagString: Untagged
@@ -7212,6 +7245,25 @@ Transform:
   m_Father: {fileID: 5672157207868484993}
   m_RootOrder: 30
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4849090425793437725
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8798314021946669981}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -74416139, guid: b247489fc36790c41b197410cd8386d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ID: TestComponent
+  ContactStripFirstEnd: {fileID: 1893546393}
+  ContactStripSecondEnd: {fileID: 213593460}
+  maximumRaise: 6.68
+  alwaysExtendFully: 0
+  masterControlFuseId: fusebox.ELECTRICS_MAIN
+  pantographToggleId: fusebox.TM_POWER
 --- !u!1 &8851952941036508090
 GameObject:
   m_ObjectHideFlags: 0
