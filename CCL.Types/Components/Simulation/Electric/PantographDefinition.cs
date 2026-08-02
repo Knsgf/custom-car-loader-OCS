@@ -12,9 +12,15 @@ namespace CCL.Types.Components.Simulation.Electric
 	[AddComponentMenu("CCL/Components/Simulation/Electric/Pantograph Definition")]
 	public class PantographDefinition : SimComponentDefinitionProxy, IHasFuseIdFields
 	{
-		public Transform? ContactStripFirstEnd, ContactStripSecondEnd;
-		[Tooltip("Maximum reach height above zero. The minimum height is taken from initial position")]
+		public Transform? pantographBase;
+		public Transform? contactStripFirstEnd, contactStripSecondEnd;
+		
+		[Min(0.0f), Tooltip("Maximum reach height above zero. The minimum height is taken from initial position")]
 		public float maximumRaise;
+		
+		[Min(0.0f)]
+		public float headMovementSpeed;
+		
 		[Tooltip("When unchecked, the pantograph extends till it makes contact. If checked, extends all the way ignoring contact; useful for some side trolley designs")]
 		public bool alwaysExtendFully;
 

@@ -2856,7 +2856,7 @@ MonoBehaviour:
   - {fileID: 8266819287410642514}
   - {fileID: 7973733510547097469}
   - {fileID: 5313591845246324350}
-  - {fileID: 4849090425793437725}
+  - {fileID: 200860191638122566}
   connections:
   - fullPortIdOut: tm.TORQUE_OUT
     fullPortIdIn: transmission.TORQUE_IN
@@ -5701,6 +5701,10 @@ MonoBehaviour:
   TickRate: 5
   PortIds:
   - throttle.EXT_IN
+  - TestComponent.VOLTAGE
+  - TestComponent.VOLTAGE_NORMALIZED
+  - TestComponent.PANTOGRAPH_RAISE
+  - TestComponent.PANTOGRAPH_RAISE_NORMALIZED
   PortReferenceIds: []
   UseColours: 1
   AddDummyForcePort: 1
@@ -7223,7 +7227,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4608320065283374448}
-  - component: {fileID: 4849090425793437725}
+  - component: {fileID: 200860191638122566}
   m_Layer: 0
   m_Name: TestComponent
   m_TagString: Untagged
@@ -7239,13 +7243,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8798314021946669981}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 6.68, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
   m_RootOrder: 30
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4849090425793437725
+--- !u!114 &200860191638122566
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -7258,9 +7262,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ID: TestComponent
-  ContactStripFirstEnd: {fileID: 1893546393}
-  ContactStripSecondEnd: {fileID: 213593460}
+  pantographBase: {fileID: 181744541}
+  contactStripFirstEnd: {fileID: 1893546393}
+  contactStripSecondEnd: {fileID: 213593460}
   maximumRaise: 6.68
+  headMovementSpeed: 0.5
   alwaysExtendFully: 0
   masterControlFuseId: fusebox.ELECTRICS_MAIN
   pantographToggleId: fusebox.TM_POWER

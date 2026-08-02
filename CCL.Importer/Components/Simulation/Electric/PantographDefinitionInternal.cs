@@ -15,9 +15,10 @@ namespace CCL.Importer.Components.Simulation.Electric
 {
 	internal class PantographDefinitionInternal : SimComponentDefinition
 	{
-		public Transform? ContactStripFirstEnd, ContactStripSecondEnd;
-		public float maximumRaise;
-		public bool alwaysExtendFully;
+		public Transform? pantographBase;
+		public Transform? contactStripFirstEnd, contactStripSecondEnd;
+		public float      maximumRaise, headMovementSpeed;
+		public bool       alwaysExtendFully;
 
 		public string masterControlFuseId = string.Empty;
 		public string pantographToggleId  = string.Empty;
@@ -29,7 +30,6 @@ namespace CCL.Importer.Components.Simulation.Electric
 
 		public readonly PortReferenceDefinition currentDraw = new(PortValueType.AMPS, "CURRENT_DRAW", writeAllowed: false);
 
-		
 		public override SimComponent InstantiateImplementation() => new Pantograph(this);
 	}
 }
