@@ -17,56 +17,171 @@ namespace CCL.Importer.Implementations
 		const string OCSClassName    = "electric_sim.catenary.overhead_equipment, electric_sim";
 		const string OCSPropertyName = "system";
 		const string OCSWireHeightAndVoltageMethodName = "relative_wire_height_and_voltage";
+		const string OCSActivationEventName = "catenary_activated", OCSDeactivationEventName = "catenary_deactivated";
 
+		const int initializationTimeOut = 3 * 60, retryTime = 5;
+
+		private static Type? _OCSType = null;
+		private static Dictionary<TrainCar, List<Pantograph>> _allPantographs = new();
+		private static Dictionary<TrainCar, int> _nextPantographID = new(), _raisedPantographMask = new(), _raisedPantographCount = new();
+		
 		private Func<Transform, Transform, Transform, Transform, float, (float?, float)>? GetWireHeightAndVoltage;
-		private object? _OCSObject;
 		
 		private readonly Port _voltageReadOut, _voltageNormalizedReadOut, _heightReadOut, _heightNormalizedReadOut;
 		private readonly PortReference _pantographLoad;
 
-		private readonly GameObject? _unit;
+		private readonly TrainCar? _unit;
 		private readonly Transform? _base, _stripEnd1, _stripEnd2;
 
 		private readonly float _maximumRaise;
+		private readonly int   _ID;
+		
+		private bool _unitDestroyed = false;
 
-		public Pantograph(PantographDefinitionInternal def): base(def.ID)
+		private static async void TryGetOCSType()
 		{
-			Debug.Log($"CCL PNT {def.maximumRaise} {def.headMovementSpeed}");
-			_unit = TrainCar.Resolve(def.pantographBase)?.gameObject;
-			Debug.Log($"CCL PNT <{_unit?.name ?? "NULL"}>");
-
-			var OCSType = Type.GetType(OCSClassName, throwOnError: false);
-			if (OCSType != null)
+			for (int remainingTime = initializationTimeOut; remainingTime >= 0; remainingTime -= retryTime)
 			{
-				MethodInfo getWireHeightAndVoltageInfo = OCSType.GetMethod(OCSWireHeightAndVoltageMethodName, 
-					new Type[] { typeof(Transform), typeof(Transform), typeof(Transform), typeof(Transform), typeof(float) });
-				Debug.Log($"CCL PNT GWHV {getWireHeightAndVoltageInfo?.ToString() ?? "NULL"}");
-				PropertyInfo OCSObjectInfo = OCSType.GetProperty(OCSPropertyName, BindingFlags.Public | BindingFlags.Static);
-				Debug.Log($"CCL PNT SYS {OCSObjectInfo?.ToString() ?? "NULL"}");
-				if (OCSObjectInfo != null)
+				_OCSType = Type.GetType(OCSClassName, throwOnError: false);
+				if (_OCSType != null)
+					break;
+				await Task.Delay(retryTime * 1000);
+			}
+			Debug.Log($"CCL PNT OCS {_OCSType?.ToString() ?? "NULL"}");
+			
+			if (_OCSType != null)
+			{
+				EventInfo? OCSActivationInfo   = _OCSType.GetEvent(  OCSActivationEventName, BindingFlags.Public | BindingFlags.Static);
+				EventInfo? OCSDeactivationInfo = _OCSType.GetEvent(OCSDeactivationEventName, BindingFlags.Public | BindingFlags.Static);
+				if (OCSActivationInfo == null || OCSDeactivationInfo == null)
 				{
-					_OCSObject = OCSObjectInfo.GetValue(null);
-					Debug.Log($"CCL PNT SYSP {_OCSObject ?? "NULL"}");
-					if (_OCSObject != null && getWireHeightAndVoltageInfo != null)
-					{
-						GetWireHeightAndVoltage = getWireHeightAndVoltageInfo.CreateDelegate(typeof(Func<Transform, Transform, Transform, Transform, float, (float?, float)>), _OCSObject)
-							as Func<Transform, Transform, Transform, Transform, float, (float?, float)>;
-						Debug.Log($"CCL PNT DLG {GetWireHeightAndVoltage?.ToString() ?? "NULL"}");
-					}
+					_OCSType = null;
+					return;
+				}
+				Debug.Log($"CCL PNT OCS+ {OCSActivationInfo}");
+				Debug.Log($"CCL PNT OCS- {OCSDeactivationInfo}");
+				OCSActivationInfo.AddEventHandler  (null, (Action) SetUpConnectionForAllPantographs);
+				OCSDeactivationInfo.AddEventHandler(null, (Action) SeverConnectionForAllPantographs);
+				SetUpConnectionForAllPantographs();
+			}
+		}
+
+		private static void SetUpConnectionForAllPantographs()
+		{
+			Debug.Log("OCS+");
+			if (_OCSType != null)
+			{
+				foreach (List<Pantograph> currentCarPantographs in _allPantographs.Values)
+				{
+					foreach (Pantograph currentPantograph in currentCarPantographs)
+						currentPantograph.SetUpCatenaryConnection();
 				}
 			}
+		}
+		
+		private static void SeverConnectionForAllPantographs()
+		{
+			Debug.Log("OCS-");
+			if (_OCSType != null)
+			{
+				foreach (List<Pantograph> currentCarPantographs in _allPantographs.Values)
+				{
+					foreach (Pantograph currentPantograph in currentCarPantographs)
+						currentPantograph.GetWireHeightAndVoltage = null;
+				}
+			}
+		}
+		
+		static Pantograph()
+		{
+			TryGetOCSType();
+		}
 
-			_voltageReadOut = AddPort(def.supplyVoltage);
-			_voltageNormalizedReadOut = AddPort(def.supplyVoltageNormalized);
-			_heightReadOut = AddPort(def.pantographRaise);
-			_heightNormalizedReadOut = AddPort(def.pantographRaiseNormalized);
+		public Pantograph(PantographDefinitionInternal definition): base(definition.ID)
+		{
+			_voltageReadOut = AddPort(definition.supplyVoltage);
+			_voltageNormalizedReadOut = AddPort(definition.supplyVoltageNormalized);
+			_heightReadOut = AddPort(definition.pantographRaise);
+			_heightNormalizedReadOut = AddPort(definition.pantographRaiseNormalized);
 
-			_pantographLoad = AddPortReference(def.currentDraw);
+			_pantographLoad = AddPortReference(definition.currentDraw);
+			Debug.Log($"CCL PNT {definition.maximumRaise} {definition.headMovementSpeed}");
+			_unit = TrainCar.Resolve(definition.pantographBase);
+			Debug.Log($"CCL PNT <{_unit?.name ?? "NULL"}>");
 
-			_base = def.pantographBase;
-			_stripEnd1 = def.contactStripFirstEnd;
-			_stripEnd2 = def.contactStripSecondEnd;
-			_maximumRaise = def.maximumRaise;
+			TrainCar? unit = _unit;
+			if (unit == null)
+				return;
+			if (_allPantographs.TryGetValue(unit, out List<Pantograph> installedPantographs))
+			{
+				_ID = _nextPantographID[unit]++;
+				installedPantographs.Add(this);
+			}
+			else
+			{
+				_ID = 0;
+				_allPantographs      [unit]   = new() { this };
+				_nextPantographID    [unit]   = 1;
+				_raisedPantographMask[unit]   = _raisedPantographCount[unit] = 0;
+				unit.OnCarAboutToBeDestroyed += OnCarDestroyed;
+			}
+			
+			_base = definition.pantographBase;
+			_stripEnd1 = definition.contactStripFirstEnd;
+			_stripEnd2 = definition.contactStripSecondEnd;
+			_maximumRaise = definition.maximumRaise;
+
+			SetUpCatenaryConnection();
+		}
+
+		private void SetUpCatenaryConnection()
+		{
+			GetWireHeightAndVoltage = null;
+			if (_unitDestroyed || _OCSType == null)
+				return;
+
+			MethodInfo getWireHeightAndVoltageInfo = _OCSType.GetMethod(OCSWireHeightAndVoltageMethodName, 
+				new Type[] { typeof(Transform), typeof(Transform), typeof(Transform), typeof(Transform), typeof(float) });
+			Debug.Log($"CCL PNT GWHV {getWireHeightAndVoltageInfo?.ToString() ?? "NULL"}");
+			PropertyInfo OCSObjectInfo = _OCSType.GetProperty(OCSPropertyName, BindingFlags.Public | BindingFlags.Static);
+			Debug.Log($"CCL PNT SYS {OCSObjectInfo?.ToString() ?? "NULL"}");
+			if (OCSObjectInfo != null && getWireHeightAndVoltageInfo != null)
+			{
+				object OCSObject;
+				try
+				{
+					OCSObject = OCSObjectInfo.GetValue(null);
+				}
+				catch (InvalidOperationException _)
+				{
+					return;
+				}
+				Debug.Log($"CCL PNT SYSP {OCSObject ?? "NULL"}");
+				if (OCSObject != null)
+				{
+					GetWireHeightAndVoltage = getWireHeightAndVoltageInfo.CreateDelegate(typeof(Func<Transform, Transform, Transform, Transform, float, (float?, float)>), OCSObject)
+						as Func<Transform, Transform, Transform, Transform, float, (float?, float)>;
+					Debug.Log($"CCL PNT DLG {GetWireHeightAndVoltage?.ToString() ?? "NULL"}");
+				}
+			}
+		}
+
+		private void OnCarDestroyed()
+		{
+			TrainCar? unit = _unit;
+			if (unit == null || !_allPantographs.ContainsKey(unit))
+				return;
+			unit.OnCarAboutToBeDestroyed -= OnCarDestroyed;
+			foreach (Pantograph currentPantograph in _allPantographs[unit])
+			{
+				currentPantograph.GetWireHeightAndVoltage = null;
+				currentPantograph._unitDestroyed          = true;
+			}
+			_allPantographs[unit].Clear();
+			_allPantographs.Remove       (unit);
+			_nextPantographID.Remove     (unit);
+			_raisedPantographMask.Remove (unit);
+			_raisedPantographCount.Remove(unit);
 		}
 
 		public override void Tick(float delta)
