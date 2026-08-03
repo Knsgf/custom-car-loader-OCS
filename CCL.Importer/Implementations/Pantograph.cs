@@ -19,9 +19,12 @@ namespace CCL.Importer.Implementations
 		const string OCSWireHeightAndVoltageMethodName = "relative_wire_height_and_voltage";
 		const string OCSActivationEventName = "catenary_activated", OCSDeactivationEventName = "catenary_deactivated";
 
-		const int initializationTimeOut = 3 * 60, retryTime = 5;
+		const int initializationTimeOut = 10 * 60, retryTime = 5;
 
-		private static Type? _OCSType = null;
+		private static Type?         _OCSType                     = null;
+		private static MethodInfo?   _getWireHeightAndVoltageInfo = null;
+		private static PropertyInfo? _OCSObjectInfo               = null;
+
 		private static Dictionary<TrainCar, List<Pantograph>> _allPantographs = new();
 		private static Dictionary<TrainCar, int> _nextPantographID = new(), _raisedPantographMask = new(), _raisedPantographCount = new();
 		
@@ -45,12 +48,18 @@ namespace CCL.Importer.Implementations
 				_OCSType = Type.GetType(OCSClassName, throwOnError: false);
 				if (_OCSType != null)
 					break;
+				Debug.Log($"CCL PNT RT={remainingTime}");
 				await Task.Delay(retryTime * 1000);
 			}
 			Debug.Log($"CCL PNT OCS {_OCSType?.ToString() ?? "NULL"}");
 			
 			if (_OCSType != null)
 			{
+				_getWireHeightAndVoltageInfo = _OCSType.GetMethod(OCSWireHeightAndVoltageMethodName, 
+					new Type[] { typeof(Transform), typeof(Transform), typeof(Transform), typeof(Transform), typeof(float) });
+				Debug.Log($"CCL PNT GWHV {_getWireHeightAndVoltageInfo?.ToString() ?? "NULL"}");
+				_OCSObjectInfo = _OCSType.GetProperty(OCSPropertyName, BindingFlags.Public | BindingFlags.Static);
+				Debug.Log($"CCL PNT SYS {_OCSObjectInfo?.ToString() ?? "NULL"}");
 				EventInfo? OCSActivationInfo   = _OCSType.GetEvent(  OCSActivationEventName, BindingFlags.Public | BindingFlags.Static);
 				EventInfo? OCSDeactivationInfo = _OCSType.GetEvent(OCSDeactivationEventName, BindingFlags.Public | BindingFlags.Static);
 				if (OCSActivationInfo == null || OCSDeactivationInfo == null)
@@ -137,32 +146,24 @@ namespace CCL.Importer.Implementations
 		private void SetUpCatenaryConnection()
 		{
 			GetWireHeightAndVoltage = null;
-			if (_unitDestroyed || _OCSType == null)
+			if (_unitDestroyed || _OCSType == null || _OCSObjectInfo == null || _getWireHeightAndVoltageInfo == null)
 				return;
 
-			MethodInfo getWireHeightAndVoltageInfo = _OCSType.GetMethod(OCSWireHeightAndVoltageMethodName, 
-				new Type[] { typeof(Transform), typeof(Transform), typeof(Transform), typeof(Transform), typeof(float) });
-			Debug.Log($"CCL PNT GWHV {getWireHeightAndVoltageInfo?.ToString() ?? "NULL"}");
-			PropertyInfo OCSObjectInfo = _OCSType.GetProperty(OCSPropertyName, BindingFlags.Public | BindingFlags.Static);
-			Debug.Log($"CCL PNT SYS {OCSObjectInfo?.ToString() ?? "NULL"}");
-			if (OCSObjectInfo != null && getWireHeightAndVoltageInfo != null)
+			object OCSInstance;
+			try
 			{
-				object OCSObject;
-				try
-				{
-					OCSObject = OCSObjectInfo.GetValue(null);
-				}
-				catch (InvalidOperationException _)
-				{
-					return;
-				}
-				Debug.Log($"CCL PNT SYSP {OCSObject ?? "NULL"}");
-				if (OCSObject != null)
-				{
-					GetWireHeightAndVoltage = getWireHeightAndVoltageInfo.CreateDelegate(typeof(Func<Transform, Transform, Transform, Transform, float, (float?, float)>), OCSObject)
-						as Func<Transform, Transform, Transform, Transform, float, (float?, float)>;
-					Debug.Log($"CCL PNT DLG {GetWireHeightAndVoltage?.ToString() ?? "NULL"}");
-				}
+				OCSInstance = _OCSObjectInfo.GetValue(null);
+			}
+			catch (InvalidOperationException _)
+			{
+				return;
+			}
+			Debug.Log($"CCL PNT SYSP {OCSInstance ?? "NULL"}");
+			if (OCSInstance != null)
+			{
+				GetWireHeightAndVoltage = _getWireHeightAndVoltageInfo.CreateDelegate(typeof(Func<Transform, Transform, Transform, Transform, float, (float?, float)>), OCSInstance)
+					as Func<Transform, Transform, Transform, Transform, float, (float?, float)>;
+				Debug.Log($"CCL PNT DLG {GetWireHeightAndVoltage?.ToString() ?? "NULL"}");
 			}
 		}
 
