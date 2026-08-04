@@ -263,8 +263,11 @@ namespace CCL.Importer.Implementations
 				return;
 			float? wireHeight;
 			int    raisedPantographs = _raisedPantographCount[_unit];
-			float  voltage, load     = (raisedPantographs == 0) ? 0.0f : (_pantographLoad.Value / raisedPantographs);
+			float  total_load        = _pantographLoad.Value;
 			bool   pantographOn      = _pantographToggle.State && _masterFuse.State;
+			float  load              = (raisedPantographs == 0 || float.IsNaN(total_load) || float.IsInfinity(total_load))
+									 ? 0.0f : (total_load / raisedPantographs);
+			float  voltage;
 			if (pantographOn && GetWireHeightAndVoltage != null)
 				(wireHeight, voltage) = GetWireHeightAndVoltage(_unit.transform, _base, _stripEnd1, _stripEnd2, load);
 			else
