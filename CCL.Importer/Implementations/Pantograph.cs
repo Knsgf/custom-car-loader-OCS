@@ -36,9 +36,9 @@ namespace CCL.Importer.Implementations
 		
 		private Func<Transform, Transform, Transform, Transform, float, (float?, float)>? GetWireHeightAndVoltage = null;
 		
-		private readonly FuseReference _masterFuse, _pantographToggle;
+		private readonly FuseReference _masterFuse;
 		private readonly Port          _voltageReadOut, _voltageNormalizedReadOut, _raiseReadOut, _raiseNormalizedReadOut;
-		private readonly PortReference _pantographLoad;
+		private readonly PortReference _pantographToggle, _pantographLoad;
 
 		private readonly TrainCar?  _unit;
 		private readonly Transform? _base, _stripEnd1, _stripEnd2;
@@ -128,11 +128,11 @@ namespace CCL.Importer.Implementations
 			_contactTolerance  = definition.contactTolerance;
 
 			_masterFuse               = AddFuseReference(definition.masterControlFuseId);
-			_pantographToggle         = AddFuseReference(definition.pantographToggleId );
 			_voltageReadOut           = AddPort(definition.supplyVoltage            );
 			_voltageNormalizedReadOut = AddPort(definition.supplyVoltageNormalized  );
 			_raiseReadOut             = AddPort(definition.pantographRaise          );
 			_raiseNormalizedReadOut   = AddPort(definition.pantographRaiseNormalized);
+			_pantographToggle         = AddPortReference(definition.toggle     );
 			_pantographLoad           = AddPortReference(definition.currentDraw);
 
 			_unit = TrainCar.Resolve(definition.pantographBase);
@@ -239,7 +239,7 @@ namespace CCL.Importer.Implementations
 		{
 			if (_unitDestroyed || _unit == null || _stripEnd1 == null || _stripEnd2 == null)
 				return;
-			float targetRaise     = (_pantographToggle.State && _masterFuse.State) ? raiseHeight : _minimumRaise;
+			float targetRaise     = (_pantographToggle.Value >= 0.5f && _masterFuse.State) ? raiseHeight : _minimumRaise;
 			float currentRaise    = _raiseReadOut.Value;
 			float raiseDifference = targetRaise - StripMidpointHeight(_unit, _stripEnd1, _stripEnd2);
 			float movementSpeed   = Mathf.Min(_headMovementSpeed, Mathf.Abs(raiseDifference) / 0.2f);
@@ -264,7 +264,7 @@ namespace CCL.Importer.Implementations
 			float? wireHeight;
 			int    raisedPantographs = _raisedPantographCount[_unit];
 			float  total_load        = _pantographLoad.Value;
-			bool   pantographOn      = _pantographToggle.State && _masterFuse.State;
+			bool   pantographOn      = _pantographToggle.Value >= 0.5f && _masterFuse.State;
 			float  load              = (raisedPantographs == 0 || float.IsNaN(total_load) || float.IsInfinity(total_load))
 									 ? 0.0f : (total_load / raisedPantographs);
 			float  voltage;

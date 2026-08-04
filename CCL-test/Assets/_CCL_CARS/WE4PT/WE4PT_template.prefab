@@ -59,7 +59,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: e2b7df3a000409444aaa2b84fa8136af, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -182,7 +182,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: e2b7df3a000409444aaa2b84fa8136af, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -461,7 +461,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: e2b7df3a000409444aaa2b84fa8136af, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -524,7 +524,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 22
+  m_RootOrder: 26
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8860080597082749550
 MonoBehaviour:
@@ -599,7 +599,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ID: tmPassiveCooler
-  coolingRate: 20
+  coolingRate: 50
 --- !u!1 &306779813053962729
 GameObject:
   m_ObjectHideFlags: 0
@@ -629,7 +629,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 8
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7729975471717689324
 MonoBehaviour:
@@ -675,7 +675,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 21
+  m_RootOrder: 25
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5430459249338378456
 MonoBehaviour:
@@ -827,7 +827,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: e2b7df3a000409444aaa2b84fa8136af, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -922,6 +922,57 @@ Transform:
   m_Father: {fileID: 1862391845404564021}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &700983693072297970
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8540118389285754596}
+  - component: {fileID: 7875516049335995137}
+  m_Layer: 0
+  m_Name: pantograph
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8540118389285754596
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 700983693072297970}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 5672157207868484993}
+  m_RootOrder: 13
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7875516049335995137
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 700983693072297970}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -74416139, guid: b247489fc36790c41b197410cd8386d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ID: pantograph
+  pantographBase: {fileID: 181744541}
+  contactStripFirstEnd: {fileID: 1893546393}
+  contactStripSecondEnd: {fileID: 213593460}
+  headMovementSpeed: 0.5
+  maximumRaise: 6.68
+  contactTolerance: 0.2
+  masterControlFuseId: fusebox.ELECTRICS_MAIN
 --- !u!1 &767369486658909936
 GameObject:
   m_ObjectHideFlags: 0
@@ -1064,7 +1115,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 5
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8985990193041604773
 MonoBehaviour:
@@ -1484,7 +1535,7 @@ Transform:
   - {fileID: 790256611346686457}
   - {fileID: 2018785902465107393}
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 16
+  m_RootOrder: 20
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6495413697098693612
 MonoBehaviour:
@@ -2539,7 +2590,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 6
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6222085869566845796
 MonoBehaviour:
@@ -2750,12 +2801,16 @@ Transform:
   - {fileID: 3450987831989659317}
   - {fileID: 7877060523876187447}
   - {fileID: 4972611625129609497}
+  - {fileID: 652682883130033502}
+  - {fileID: 3664083326349232692}
   - {fileID: 1554012823055787511}
   - {fileID: 877243455795345292}
   - {fileID: 493375692114452213}
   - {fileID: 2594858519886304296}
   - {fileID: 5218887670375018505}
   - {fileID: 4143349481667661510}
+  - {fileID: 8540118389285754596}
+  - {fileID: 2355775096604272976}
   - {fileID: 2872509359694180389}
   - {fileID: 3400915805983402212}
   - {fileID: 4800876815688751021}
@@ -2775,7 +2830,6 @@ Transform:
   - {fileID: 6554139736716603284}
   - {fileID: 746855956446332302}
   - {fileID: 2607811233383520171}
-  - {fileID: 4608320065283374448}
   m_Father: {fileID: 6923559146813231640}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2798,6 +2852,8 @@ MonoBehaviour:
   - {fileID: 5776681976439666500}
   - {fileID: 756117304303532854}
   - {fileID: 2741515885903771577}
+  - {fileID: 8805649641290016374}
+  - {fileID: 3808618593473371609}
   - {fileID: 8985990193041604773}
   - {fileID: 6222085869566845796}
   - {fileID: 4062600427097626820}
@@ -2805,6 +2861,7 @@ MonoBehaviour:
   - {fileID: 8845062959917103144}
   - {fileID: 6070338979381481687}
   - {fileID: 4824715608047862383}
+  - {fileID: 7875516049335995137}
   - {fileID: 8161892729109003524}
   - {fileID: 8009042279941120359}
   - {fileID: 3486696345912907028}
@@ -2826,7 +2883,6 @@ MonoBehaviour:
   - {fileID: 8266819287410642514}
   - {fileID: 7973733510547097469}
   - {fileID: 5313591845246324350}
-  - {fileID: 5798960335416048224}
   connections:
   - fullPortIdOut: tm.TORQUE_OUT
     fullPortIdIn: transmission.TORQUE_IN
@@ -2893,12 +2949,14 @@ MonoBehaviour:
     portId: headlightDecoder.REAR_HEADLIGHTS_EXT_IN
   - portReferenceId: ampLamp.INPUT
     portId: tm.AMPS_PER_TM
-  - portReferenceId: voltageRegulator.SUPPLY_VOLTAGE
-    portId: TestComponent.VOLTAGE
   - portReferenceId: compressor.VOLTAGE_NORMALIZED
-    portId: TestComponent.VOLTAGE_NORMALIZED
+    portId: pantograph.VOLTAGE_NORMALIZED
+  - portReferenceId: voltageRegulator.SUPPLY_VOLTAGE
+    portId: pantograph.VOLTAGE
+  - portReferenceId: pantograph.TOGGLE
+    portId: pantographSwitch.EXT_IN
   connectionsJson: '[{"fullPortIdIn":"transmission.TORQUE_IN","fullPortIdOut":"tm.TORQUE_OUT"},{"fullPortIdIn":"traction.TORQUE_IN","fullPortIdOut":"transmission.TORQUE_OUT"}]'
-  portReferenceConnectionsJson: '[{"portId":"throttle.EXT_IN","portReferenceId":"throttleCurve.IN"},{"portId":"hornControl.CONTROL","portReferenceId":"horn.HORN_CONTROL"},{"portId":"batteryCharge.NORMALIZED","portReferenceId":"batteryController.NORMALIZED_CHARGE"},{"portId":"tm.POWER_IN","portReferenceId":"powerConsumptionCalculator.POWER_CONSUMPTION_0"},{"portId":"compressor.POWER_CONSUMPTION","portReferenceId":"powerConsumptionCalculator.POWER_CONSUMPTION_1"},{"portId":"sand.AMOUNT","portReferenceId":"sander.SAND"},{"portId":"sand.CONSUME_EXT_IN","portReferenceId":"sander.SAND_CONSUMPTION"},{"portId":"traction.WHEEL_RPM_EXT_IN","portReferenceId":"tmRpmCalculator.WHEEL_RPM"},{"portId":"transmission.GEAR_RATIO","portReferenceId":"tmRpmCalculator.GEAR_RATIO"},{"portId":"throttleCurve.OUT","portReferenceId":"voltageRegulator.THROTTLE"},{"portId":"tm.SINGLE_MOTOR_EFFECTIVE_RESISTANCE","portReferenceId":"voltageRegulator.SINGLE_MOTOR_EFFECTIVE_RESISTANCE"},{"portId":"throttle.EXT_IN","portReferenceId":"tm.THROTTLE"},{"portId":"reverser.REVERSER","portReferenceId":"tm.REVERSER"},{"portId":"tmRpmCalculator.TM_RPM","portReferenceId":"tm.MOTOR_RPM"},{"portId":"voltageRegulator.OUTPUT_VOLTAGE","portReferenceId":"tm.APPLIED_VOLTAGE"},{"portId":"tmHeat.TEMPERATURE","portReferenceId":"tm.TM_TEMPERATURE"},{"portId":"waterDetector.STATE_EXT_IN","portReferenceId":"tm.ENVIRONMENT_WATER_STATE"},{"portId":"tmHeat.TEMPERATURE","portReferenceId":"tmPassiveCooler.TEMPERATURE"},{"portId":"","portReferenceId":"tmPassiveCooler.TARGET_TEMPERATURE"},{"portId":"tm.HEAT_OUT","portReferenceId":"tmHeat.HEAT_IN_0"},{"portId":"tmPassiveCooler.HEAT_OUT","portReferenceId":"tmHeat.HEAT_IN_1"},{"portId":"cabLight.EXT_IN","portReferenceId":"cabLightLamp.INPUT"},{"portId":"tm.TMS_STATE","portReferenceId":"tmOfflineLamp.INPUT"},{"portId":"batteryCharge.NORMALIZED","portReferenceId":"batteryLamp.INPUT"},{"portId":"tmHeat.TEMPERATURE","portReferenceId":"tmOverheatLamp.INPUT"},{"portId":"sander.CONTROL_EXT_IN","portReferenceId":"sanderLamp.INPUT"},{"portId":"sand.NORMALIZED","portReferenceId":"sandLamp.INPUT"},{"portId":"headlightDecoder.FRONT_HEADLIGHTS_EXT_IN","portReferenceId":"headlightsFLamp.INPUT"},{"portId":"headlightDecoder.REAR_HEADLIGHTS_EXT_IN","portReferenceId":"headlightsRLamp.INPUT"},{"portId":"tm.AMPS_PER_TM","portReferenceId":"ampLamp.INPUT"},{"portId":"TestComponent.VOLTAGE","portReferenceId":"voltageRegulator.SUPPLY_VOLTAGE"},{"portId":"TestComponent.VOLTAGE_NORMALIZED","portReferenceId":"compressor.VOLTAGE_NORMALIZED"}]'
+  portReferenceConnectionsJson: '[{"portId":"throttle.EXT_IN","portReferenceId":"throttleCurve.IN"},{"portId":"hornControl.CONTROL","portReferenceId":"horn.HORN_CONTROL"},{"portId":"batteryCharge.NORMALIZED","portReferenceId":"batteryController.NORMALIZED_CHARGE"},{"portId":"tm.POWER_IN","portReferenceId":"powerConsumptionCalculator.POWER_CONSUMPTION_0"},{"portId":"compressor.POWER_CONSUMPTION","portReferenceId":"powerConsumptionCalculator.POWER_CONSUMPTION_1"},{"portId":"sand.AMOUNT","portReferenceId":"sander.SAND"},{"portId":"sand.CONSUME_EXT_IN","portReferenceId":"sander.SAND_CONSUMPTION"},{"portId":"traction.WHEEL_RPM_EXT_IN","portReferenceId":"tmRpmCalculator.WHEEL_RPM"},{"portId":"transmission.GEAR_RATIO","portReferenceId":"tmRpmCalculator.GEAR_RATIO"},{"portId":"throttleCurve.OUT","portReferenceId":"voltageRegulator.THROTTLE"},{"portId":"tm.SINGLE_MOTOR_EFFECTIVE_RESISTANCE","portReferenceId":"voltageRegulator.SINGLE_MOTOR_EFFECTIVE_RESISTANCE"},{"portId":"throttle.EXT_IN","portReferenceId":"tm.THROTTLE"},{"portId":"reverser.REVERSER","portReferenceId":"tm.REVERSER"},{"portId":"tmRpmCalculator.TM_RPM","portReferenceId":"tm.MOTOR_RPM"},{"portId":"voltageRegulator.OUTPUT_VOLTAGE","portReferenceId":"tm.APPLIED_VOLTAGE"},{"portId":"tmHeat.TEMPERATURE","portReferenceId":"tm.TM_TEMPERATURE"},{"portId":"waterDetector.STATE_EXT_IN","portReferenceId":"tm.ENVIRONMENT_WATER_STATE"},{"portId":"tmHeat.TEMPERATURE","portReferenceId":"tmPassiveCooler.TEMPERATURE"},{"portId":"","portReferenceId":"tmPassiveCooler.TARGET_TEMPERATURE"},{"portId":"tm.HEAT_OUT","portReferenceId":"tmHeat.HEAT_IN_0"},{"portId":"tmPassiveCooler.HEAT_OUT","portReferenceId":"tmHeat.HEAT_IN_1"},{"portId":"cabLight.EXT_IN","portReferenceId":"cabLightLamp.INPUT"},{"portId":"tm.TMS_STATE","portReferenceId":"tmOfflineLamp.INPUT"},{"portId":"batteryCharge.NORMALIZED","portReferenceId":"batteryLamp.INPUT"},{"portId":"tmHeat.TEMPERATURE","portReferenceId":"tmOverheatLamp.INPUT"},{"portId":"sander.CONTROL_EXT_IN","portReferenceId":"sanderLamp.INPUT"},{"portId":"sand.NORMALIZED","portReferenceId":"sandLamp.INPUT"},{"portId":"headlightDecoder.FRONT_HEADLIGHTS_EXT_IN","portReferenceId":"headlightsFLamp.INPUT"},{"portId":"headlightDecoder.REAR_HEADLIGHTS_EXT_IN","portReferenceId":"headlightsRLamp.INPUT"},{"portId":"tm.AMPS_PER_TM","portReferenceId":"ampLamp.INPUT"},{"portId":"pantograph.VOLTAGE_NORMALIZED","portReferenceId":"compressor.VOLTAGE_NORMALIZED"},{"portId":"pantograph.VOLTAGE","portReferenceId":"voltageRegulator.SUPPLY_VOLTAGE"},{"portId":"pantographSwitch.EXT_IN","portReferenceId":"pantograph.TOGGLE"}]'
 --- !u!114 &3460042016622701125
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2981,7 +3039,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   updateType: 0
-  portId: TestComponent.PANTOGRAPH_RAISE_NORMALIZED
+  portId: pantograph.PANTOGRAPH_RAISE_NORMALIZED
   parameterName: 
   valueMultiplier: 1
   valueOffset: 0
@@ -3049,7 +3107,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 23
+  m_RootOrder: 27
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2824735347832886835
 MonoBehaviour:
@@ -3110,7 +3168,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 17
+  m_RootOrder: 21
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2086967694992554046
 MonoBehaviour:
@@ -3446,7 +3504,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 13
+  m_RootOrder: 17
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3486696345912907028
 MonoBehaviour:
@@ -3599,7 +3657,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 19
+  m_RootOrder: 23
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5582281364670609975
 MonoBehaviour:
@@ -3903,7 +3961,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 9
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8845062959917103144
 MonoBehaviour:
@@ -4059,7 +4117,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 15
+  m_RootOrder: 19
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5095539479376409426
 MonoBehaviour:
@@ -4074,6 +4132,52 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ID: voltageRegulator
+--- !u!1 &4262969792715731951
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3664083326349232692}
+  - component: {fileID: 3808618593473371609}
+  m_Layer: 0
+  m_Name: PantographF
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3664083326349232692
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4262969792715731951}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 5672157207868484993}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3808618593473371609
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4262969792715731951}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19037246, guid: b247489fc36790c41b197410cd8386d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ID: PantographF
+  defaultValue: 0
+  saveState: 0
 --- !u!1 &4335679410124721351
 GameObject:
   m_ObjectHideFlags: 0
@@ -4104,7 +4208,7 @@ Transform:
   m_Children:
   - {fileID: 2807068203306922633}
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 10
+  m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6070338979381481687
 MonoBehaviour:
@@ -4939,7 +5043,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 26
+  m_RootOrder: 30
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2136570730274246026
 MonoBehaviour:
@@ -5031,7 +5135,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 18
+  m_RootOrder: 22
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3862538945163008659
 MonoBehaviour:
@@ -5156,7 +5260,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 24
+  m_RootOrder: 28
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5886519251020968676
 MonoBehaviour:
@@ -5216,7 +5320,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 14
+  m_RootOrder: 18
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2069536941270275716
 MonoBehaviour:
@@ -5327,6 +5431,82 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!1 &5401088097029392461
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2355775096604272976}
+  m_Layer: 0
+  m_Name: pantograph (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2355775096604272976
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5401088097029392461}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 5672157207868484993}
+  m_RootOrder: 14
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &5407105370820690894
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 652682883130033502}
+  - component: {fileID: 8805649641290016374}
+  m_Layer: 0
+  m_Name: pantographSwitch
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &652682883130033502
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5407105370820690894}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 5672157207868484993}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8805649641290016374
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5407105370820690894}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19037246, guid: b247489fc36790c41b197410cd8386d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ID: pantographSwitch
+  defaultValue: 0
+  saveState: 0
 --- !u!1 &5462463870890324820
 GameObject:
   m_ObjectHideFlags: 0
@@ -5663,10 +5843,10 @@ MonoBehaviour:
   TickRate: 5
   PortIds:
   - throttle.EXT_IN
-  - TestComponent.VOLTAGE
-  - TestComponent.VOLTAGE_NORMALIZED
-  - TestComponent.PANTOGRAPH_RAISE
-  - TestComponent.PANTOGRAPH_RAISE_NORMALIZED
+  - pantograph.VOLTAGE
+  - pantograph.VOLTAGE_NORMALIZED
+  - pantograph.PANTOGRAPH_RAISE
+  - pantograph.PANTOGRAPH_RAISE_NORMALIZED
   - tm.AMPS_PER_TM
   - tm.RPM_NORMALIZED
   - tm.WORKING_TRACTION_MOTORS
@@ -5674,7 +5854,9 @@ MonoBehaviour:
   - tm.MOTOR_VOLTS
   - tmHeat.TEMPERATURE
   - throttleCurve.OUT
-  PortReferenceIds: []
+  - pantographSwitch.EXT_IN
+  PortReferenceIds:
+  - voltageRegulator.SUPPLY_VOLTAGE
   UseColours: 1
   AddDummyForcePort: 1
   AddDummyPowerPort: 1
@@ -5903,7 +6085,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 28
+  m_RootOrder: 32
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7973733510547097469
 MonoBehaviour:
@@ -6024,7 +6206,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 27
+  m_RootOrder: 31
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8266819287410642514
 MonoBehaviour:
@@ -6284,7 +6466,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 7
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4062600427097626820
 MonoBehaviour:
@@ -6425,7 +6607,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 20
+  m_RootOrder: 24
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &702344938991132358
 MonoBehaviour:
@@ -6513,7 +6695,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 25
+  m_RootOrder: 29
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6791375752745268559
 MonoBehaviour:
@@ -6957,7 +7139,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 11
+  m_RootOrder: 15
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8161892729109003524
 MonoBehaviour:
@@ -7014,7 +7196,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 29
+  m_RootOrder: 33
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5313591845246324350
 MonoBehaviour:
@@ -7169,7 +7351,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 12
+  m_RootOrder: 16
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8009042279941120359
 MonoBehaviour:
@@ -7187,58 +7369,6 @@ MonoBehaviour:
   capacity: 400
   defaultValue: 400
   type: 3
---- !u!1 &8798314021946669981
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 4608320065283374448}
-  - component: {fileID: 5798960335416048224}
-  m_Layer: 0
-  m_Name: TestComponent
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &4608320065283374448
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8798314021946669981}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 6.68, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 30
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5798960335416048224
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8798314021946669981}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: -74416139, guid: b247489fc36790c41b197410cd8386d9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ID: TestComponent
-  pantographBase: {fileID: 181744541}
-  contactStripFirstEnd: {fileID: 1893546393}
-  contactStripSecondEnd: {fileID: 213593460}
-  headMovementSpeed: 0.5
-  maximumRaise: 6.68
-  contactTolerance: 0.2
-  masterControlFuseId: fusebox.ELECTRICS_MAIN
-  pantographToggleId: fusebox.TM_POWER
 --- !u!1 &8851952941036508090
 GameObject:
   m_ObjectHideFlags: 0
@@ -7298,7 +7428,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: e2b7df3a000409444aaa2b84fa8136af, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -7562,7 +7692,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: e2b7df3a000409444aaa2b84fa8136af, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

@@ -26,8 +26,6 @@ namespace CCL.Types.Components.Simulation.Electric
 
 		[FuseId(true)]
 		public string masterControlFuseId = string.Empty;
-		[FuseId(true)]
-		public string pantographToggleId = string.Empty;
 
 		public override IEnumerable<PortDefinition> ExposedPorts => new[]
 		{
@@ -39,13 +37,13 @@ namespace CCL.Types.Components.Simulation.Electric
 
 		public override IEnumerable<PortReferenceDefinition> ExposedPortReferences => new[]
 		{
-			new PortReferenceDefinition(DVPortValueType.AMPS,"CURRENT_DRAW", writeAllowed: false)
+			new PortReferenceDefinition(DVPortValueType.CONTROL,      "TOGGLE", writeAllowed: false),
+			new PortReferenceDefinition(DVPortValueType.AMPS   ,"CURRENT_DRAW", writeAllowed: false)
 		};
 
 		public IEnumerable<FuseIdField> ExposedFuseIdFields => new[]
 		{
-			new FuseIdField(this, nameof(masterControlFuseId), masterControlFuseId, required: true),
-			new FuseIdField(this, nameof(pantographToggleId ),  pantographToggleId, required: true)
+			new FuseIdField(this, nameof(masterControlFuseId), masterControlFuseId, required: true)
 		};
 	}
 }
