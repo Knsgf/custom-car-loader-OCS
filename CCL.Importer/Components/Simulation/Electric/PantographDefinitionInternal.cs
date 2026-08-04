@@ -23,7 +23,7 @@ namespace CCL.Importer.Components.Simulation.Electric
 		public string pantographToggleId  = string.Empty;
 
 		public readonly PortDefinition supplyVoltage             = new(PortType.READONLY_OUT, PortValueType.VOLTS  , "VOLTAGE"                    );
-		public readonly PortDefinition supplyVoltageNormalized   = new(PortType.READONLY_OUT, PortValueType.STATE  , "VOLTAGE_NORMALIZED"         );
+		public readonly PortDefinition supplyVoltageNormalized   = new(PortType.READONLY_OUT, PortValueType.VOLTS  , "VOLTAGE_NORMALIZED"         );
 		public readonly PortDefinition pantographRaise           = new(PortType.READONLY_OUT, PortValueType.GENERIC, "PANTOGRAPH_RAISE"           );
 		public readonly PortDefinition pantographRaiseNormalized = new(PortType.READONLY_OUT, PortValueType.STATE  , "PANTOGRAPH_RAISE_NORMALIZED");
 

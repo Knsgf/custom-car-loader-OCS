@@ -32,7 +32,7 @@ namespace CCL.Types.Components.Simulation.Electric
 		public override IEnumerable<PortDefinition> ExposedPorts => new[]
 		{
 			new PortDefinition(DVPortType.READONLY_OUT, DVPortValueType.VOLTS  , "VOLTAGE"                    ),
-			new PortDefinition(DVPortType.READONLY_OUT, DVPortValueType.STATE  , "VOLTAGE_NORMALIZED"         ),
+			new PortDefinition(DVPortType.READONLY_OUT, DVPortValueType.VOLTS  , "VOLTAGE_NORMALIZED"         ),
 			new PortDefinition(DVPortType.READONLY_OUT, DVPortValueType.GENERIC, "PANTOGRAPH_RAISE"           ),
 			new PortDefinition(DVPortType.READONLY_OUT, DVPortValueType.STATE  , "PANTOGRAPH_RAISE_NORMALIZED")
 		};
