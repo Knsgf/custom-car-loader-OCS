@@ -14,12 +14,13 @@ namespace CCL.Importer.Implementations
 {
 	internal class Pantograph : SimComponent
 	{
-		const string OCSClassName    = "electric_sim.catenary.overhead_equipment, electric_sim";
-		const string OCSPropertyName = "system";
+		const string OCSClassName                      = "electric_sim.catenary.overhead_equipment, electric_sim";
+		const string OCSPropertyName                   = "system";
 		const string OCSWireHeightAndVoltageMethodName = "relative_wire_height_and_voltage";
-		const string OCSActivationEventName = "catenary_activated", OCSDeactivationEventName = "catenary_deactivated";
+		const string OCSActivationEventName            = "catenary_activated";
+		const string OCSDeactivationEventName          = "catenary_deactivated";
 
-		const int initializationTimeOut = 10 * 60, retryTime = 5;
+		const int initializationTimeOut = 3 * 60, retryTime = 5;
 
 		private static Type?         _OCSType                     = null;
 		private static MethodInfo?   _getWireHeightAndVoltageInfo = null;
@@ -28,16 +29,18 @@ namespace CCL.Importer.Implementations
 		private static Dictionary<TrainCar, List<Pantograph>> _allPantographs = new();
 		private static Dictionary<TrainCar, int> _nextPantographID = new(), _raisedPantographMask = new(), _raisedPantographCount = new();
 		
-		private Func<Transform, Transform, Transform, Transform, float, (float?, float)>? GetWireHeightAndVoltage;
+		private Func<Transform, Transform, Transform, Transform, float, (float?, float)>? GetWireHeightAndVoltage = null;
 		
-		private readonly Port _voltageReadOut, _voltageNormalizedReadOut, _heightReadOut, _heightNormalizedReadOut;
+		private readonly FuseReference _masterFuse, _pantographToggle;
+		private readonly Port          _voltageReadOut, _voltageNormalizedReadOut, _heightReadOut, _heightNormalizedReadOut;
 		private readonly PortReference _pantographLoad;
 
-		private readonly TrainCar? _unit;
+		private readonly TrainCar?  _unit;
 		private readonly Transform? _base, _stripEnd1, _stripEnd2;
 
-		private readonly float _maximumRaise;
-		private readonly int   _ID;
+		private readonly float _minimumRaise = 0.0f, _maximumRaise, _maximumHeightDifference, _headMovementSpeed;
+		private readonly int   _IDMask, _IDInvertedMask;
+		private readonly bool  _ignoreContactWhenExtending;
 		
 		private bool _unitDestroyed = false;
 
@@ -108,38 +111,46 @@ namespace CCL.Importer.Implementations
 
 		public Pantograph(PantographDefinitionInternal definition): base(definition.ID)
 		{
-			_voltageReadOut = AddPort(definition.supplyVoltage);
-			_voltageNormalizedReadOut = AddPort(definition.supplyVoltageNormalized);
-			_heightReadOut = AddPort(definition.pantographRaise);
-			_heightNormalizedReadOut = AddPort(definition.pantographRaiseNormalized);
+			_base                       = definition.pantographBase;
+			_stripEnd1                  = definition.contactStripFirstEnd;
+			_stripEnd2                  = definition.contactStripSecondEnd;
+			_headMovementSpeed          = definition.headMovementSpeed;
+			_maximumRaise               = definition.maximumRaise;
+			_ignoreContactWhenExtending = definition.alwaysExtendFully;
 
-			_pantographLoad = AddPortReference(definition.currentDraw);
-			Debug.Log($"CCL PNT {definition.maximumRaise} {definition.headMovementSpeed}");
+			_masterFuse               = AddFuseReference(definition.masterControlFuseId);
+			_pantographToggle         = AddFuseReference(definition.pantographToggleId );
+			_voltageReadOut           = AddPort(definition.supplyVoltage            );
+			_voltageNormalizedReadOut = AddPort(definition.supplyVoltageNormalized  );
+			_heightReadOut            = AddPort(definition.pantographRaise          , _minimumRaise);
+			_heightNormalizedReadOut  = AddPort(definition.pantographRaiseNormalized);
+			_pantographLoad           = AddPortReference(definition.currentDraw);
+			Debug.Log($"CCL PNT {_minimumRaise} {definition.maximumRaise} {definition.headMovementSpeed}");
+
 			_unit = TrainCar.Resolve(definition.pantographBase);
 			Debug.Log($"CCL PNT <{_unit?.name ?? "NULL"}>");
-
 			TrainCar? unit = _unit;
 			if (unit == null)
 				return;
+			if (_stripEnd1 != null && _stripEnd2 != null)
+				_minimumRaise = unit.transform.InverseTransformPoint((_stripEnd1.position + _stripEnd2.position) / 2.0f).y;
+			_maximumHeightDifference = Mathf.Max(_maximumRaise - _minimumRaise, 0.001f);
+
 			if (_allPantographs.TryGetValue(unit, out List<Pantograph> installedPantographs))
 			{
-				_ID = _nextPantographID[unit]++;
+				_IDMask = 1 << _nextPantographID[unit]++;
 				installedPantographs.Add(this);
 			}
 			else
 			{
-				_ID = 0;
+				_IDMask = 1;
 				_allPantographs      [unit]   = new() { this };
 				_nextPantographID    [unit]   = 1;
 				_raisedPantographMask[unit]   = _raisedPantographCount[unit] = 0;
 				unit.OnCarAboutToBeDestroyed += OnCarDestroyed;
 			}
+			_IDInvertedMask = ~_IDMask;
 			
-			_base = definition.pantographBase;
-			_stripEnd1 = definition.contactStripFirstEnd;
-			_stripEnd2 = definition.contactStripSecondEnd;
-			_maximumRaise = definition.maximumRaise;
-
 			SetUpCatenaryConnection();
 		}
 
@@ -149,7 +160,7 @@ namespace CCL.Importer.Implementations
 			if (_unitDestroyed || _OCSType == null || _OCSObjectInfo == null || _getWireHeightAndVoltageInfo == null)
 				return;
 
-			object OCSInstance;
+			object? OCSInstance;
 			try
 			{
 				OCSInstance = _OCSObjectInfo.GetValue(null);
@@ -185,29 +196,83 @@ namespace CCL.Importer.Implementations
 			_raisedPantographCount.Remove(unit);
 		}
 
+		private bool trackContactState(float? wireHeight)
+		{
+			TrainCar? unit = _unit;
+			if (unit == null || _stripEnd1 == null || _stripEnd2 == null)
+				return false;
+			bool wasInContact = (_raisedPantographMask[unit] & _IDMask) != 0;
+			bool nowInContact;
+			if (wireHeight == null)
+				nowInContact = false;
+			else
+			{ 
+				float stripMiddleHeight = unit.transform.InverseTransformPoint((_stripEnd1.position + _stripEnd2.position) / 2.0f).y;
+				nowInContact            = Mathf.Abs((float) wireHeight - stripMiddleHeight) <= 0.2f;
+			}
+			if (nowInContact != wasInContact)
+			{
+				if (nowInContact)
+				{
+					_raisedPantographMask [unit] |= _IDMask;
+					_raisedPantographCount[unit]++;
+				}
+				else
+				{
+					_raisedPantographMask [unit] &= _IDInvertedMask;
+					_raisedPantographCount[unit]--;
+				}
+			}
+			return nowInContact;
+		}
+		
+		private void Move(float delta, float raiseHeight)
+		{
+			float targetHeight     = (_pantographToggle.State && _masterFuse.State) ? raiseHeight : _minimumRaise;
+			float currentHeight    = _heightReadOut.Value;
+			float heightDifference = targetHeight - currentHeight;
+			float movementSpeed    = Mathf.Min(_headMovementSpeed, Mathf.Abs(heightDifference) / 0.2f);
+			if (heightDifference > 0.006f)
+			{
+				currentHeight                  = Mathf.Min(currentHeight + movementSpeed * delta, _maximumRaise);
+				_heightReadOut.Value           = currentHeight;
+				_heightNormalizedReadOut.Value = (currentHeight - _minimumRaise) / _maximumHeightDifference;
+			}
+			else if (heightDifference < -0.006f)
+			{
+				currentHeight                  = Mathf.Max(currentHeight - movementSpeed * delta, _minimumRaise);
+				_heightReadOut.Value           = currentHeight;
+				_heightNormalizedReadOut.Value = (currentHeight - _minimumRaise) / _maximumHeightDifference;
+			}
+		}
+
 		public override void Tick(float delta)
 		{
-			if (_unit == null || _base == null || _stripEnd1 == null || _stripEnd2 == null)
+			if (_unitDestroyed || _unit == null || _base == null || _stripEnd1 == null || _stripEnd2 == null)
 				return;
-			float? contactHeight;
-			float  voltage;
-			if (GetWireHeightAndVoltage != null)
-				(contactHeight, voltage) = GetWireHeightAndVoltage(_unit.transform, _base, _stripEnd1, _stripEnd2, 0.0f);
+			float? wireHeight;
+			int    raisedPantographs = _raisedPantographCount[_unit];
+			float  voltage, load     = (raisedPantographs == 0) ? 0.0f : (_pantographLoad.Value / raisedPantographs);
+			bool   pantographOn      = _pantographToggle.State && _masterFuse.State;
+			if (pantographOn && GetWireHeightAndVoltage != null)
+				(wireHeight, voltage) = GetWireHeightAndVoltage(_unit.transform, _base, _stripEnd1, _stripEnd2, load);
 			else
 			{
-				contactHeight = null;
-				voltage       = 0.0f;
+				wireHeight = null;
+				voltage    = 0.0f;
 			}
-			if (contactHeight == null)
-			{
+			float raiseHeight;
+			if (!pantographOn)
+				raiseHeight = _minimumRaise;
+			else 
+				raiseHeight = _ignoreContactWhenExtending ? _maximumRaise : (wireHeight ?? _maximumRaise);
+			Move(delta, raiseHeight);
+			if (!trackContactState(wireHeight))
 				_voltageReadOut.Value = _voltageNormalizedReadOut.Value = 0.0f;
-				_heightReadOut.Value = _maximumRaise;
-			}
 			else
 			{
-				_voltageReadOut.Value = voltage;
+				_voltageReadOut.Value           = voltage;
 				_voltageNormalizedReadOut.Value = voltage / 1500.0f;
-				_heightReadOut.Value = (float) contactHeight;
 			}
 		}
 	}
