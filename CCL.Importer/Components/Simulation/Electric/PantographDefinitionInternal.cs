@@ -18,7 +18,6 @@ namespace CCL.Importer.Components.Simulation.Electric
 		public Transform? pantographBase;
 		public Transform? contactStripFirstEnd, contactStripSecondEnd;
 		public float      maximumRaise, headMovementSpeed, contactTolerance;
-		public bool       relativeToInitialPosition, alwaysExtendFully;
 
 		public string masterControlFuseId = string.Empty;
 		public string pantographToggleId  = string.Empty;

@@ -21,12 +21,6 @@ namespace CCL.Types.Components.Simulation.Electric
 		[Min(0.0f), Tooltip("Maximum reach height (offset for side pantographs). The minimum height is taken from initial position. Must match the reach from pantograph animation")]
 		public float maximumRaise;
 
-		[Tooltip("When unchecked, the maximum raise is measured from zero height. If checked, it's specified from initial position; useful for side pantographs, which don't extend vertically")]
-		public bool relativeToInitialPosition;
-		
-		[Tooltip("When unchecked, the pantograph extends till the midpoint of the strip makes contact. If checked, extends all the way ignoring contact; useful for some side trolley designs")]
-		public bool alwaysExtendFully;
-
 		[Min(0.01f), Tooltip("Maximum vertical offset between wire and strip midpoint for a contact to register")]
 		public float contactTolerance = 0.2f;
 

@@ -43,9 +43,8 @@ namespace CCL.Importer.Implementations
 		private readonly TrainCar?  _unit;
 		private readonly Transform? _base, _stripEnd1, _stripEnd2;
 
-		private readonly float _minimumRaise = 0.0f, _maximumRaise, _maximumRaiseDifference, _headMovementSpeed;
+		private readonly float _minimumRaise = 0.0f, _maximumRaise, _maximumRaiseDifference, _headMovementSpeed, _contactTolerance;
 		private readonly int   _IDMask, _IDInvertedMask;
-		private readonly bool  _ignoreContactWhenExtending;
 		
 		private bool _unitDestroyed = false;
 
@@ -121,12 +120,12 @@ namespace CCL.Importer.Implementations
 
 		public Pantograph(PantographDefinitionInternal definition): base(definition.ID)
 		{
-			_base                       = definition.pantographBase;
-			_stripEnd1                  = definition.contactStripFirstEnd;
-			_stripEnd2                  = definition.contactStripSecondEnd;
-			_headMovementSpeed          = definition.headMovementSpeed;
-			_maximumRaise               = definition.maximumRaise;
-			_ignoreContactWhenExtending = definition.alwaysExtendFully;
+			_base              = definition.pantographBase;
+			_stripEnd1         = definition.contactStripFirstEnd;
+			_stripEnd2         = definition.contactStripSecondEnd;
+			_headMovementSpeed = definition.headMovementSpeed;
+			_maximumRaise      = definition.maximumRaise;
+			_contactTolerance  = definition.contactTolerance;
 
 			_masterFuse               = AddFuseReference(definition.masterControlFuseId);
 			_pantographToggle         = AddFuseReference(definition.pantographToggleId );
@@ -143,8 +142,6 @@ namespace CCL.Importer.Implementations
 				return;
 			if (_stripEnd1 != null && _stripEnd2 != null)
 				_raiseReadOut.Value = _minimumRaise = StripMidpointHeight(unit, _stripEnd1, _stripEnd2);
-			if (definition.relativeToInitialPosition)
-				_maximumRaise += _minimumRaise;
 			if (_maximumRaise < _minimumRaise + 0.001f)
 				_maximumRaise = _minimumRaise + 0.001f;
 			_maximumRaiseDifference = _maximumRaise - _minimumRaise;
@@ -221,7 +218,7 @@ namespace CCL.Importer.Implementations
 			if (wireHeight == null)
 				nowInContact = false;
 			else
-				nowInContact = Mathf.Abs((float) wireHeight - StripMidpointHeight(unit, _stripEnd1, _stripEnd2)) <= 0.2f;
+				nowInContact = Mathf.Abs((float) wireHeight - StripMidpointHeight(unit, _stripEnd1, _stripEnd2)) <= _contactTolerance;
 			if (nowInContact != wasInContact)
 			{
 				if (nowInContact)
@@ -244,7 +241,7 @@ namespace CCL.Importer.Implementations
 				return;
 			float targetRaise     = (_pantographToggle.State && _masterFuse.State) ? raiseHeight : _minimumRaise;
 			float currentRaise    = _raiseReadOut.Value;
-			float raiseDifference = targetRaise - (_ignoreContactWhenExtending ? currentRaise : StripMidpointHeight(_unit, _stripEnd1, _stripEnd2));
+			float raiseDifference = targetRaise - StripMidpointHeight(_unit, _stripEnd1, _stripEnd2);
 			float movementSpeed   = Mathf.Min(_headMovementSpeed, Mathf.Abs(raiseDifference) / 0.2f);
 			if (raiseDifference > 0.006f)
 			{
@@ -275,11 +272,7 @@ namespace CCL.Importer.Implementations
 				wireHeight = null;
 				voltage    = 0.0f;
 			}
-			float raiseHeight;
-			if (!pantographOn)
-				raiseHeight = _minimumRaise;
-			else 
-				raiseHeight = _ignoreContactWhenExtending ? _maximumRaise : (wireHeight ?? _maximumRaise);
+			float raiseHeight = !pantographOn ? _minimumRaise : (wireHeight ?? _maximumRaise);
 			Move(delta, raiseHeight);
 			if (!trackContactState(wireHeight))
 				_voltageReadOut.Value = _voltageNormalizedReadOut.Value = 0.0f;
