@@ -27,6 +27,7 @@ namespace CCL.Importer.Components.Controllers
 
         private TrainCar _car = null!;
         private bool _currentState = false;
+        private bool _forceUpdate = false;
 
         private static bool IsDay
         {
@@ -57,19 +58,19 @@ namespace CCL.Importer.Components.Controllers
             }
 
             _car.TrainsetChanged += TrainsetUpdate;
-            WeatherDriver.Instance.manager.MinuteChanged += TimeUpdate;
 
             UpdateLights(ShouldBeOn(), true);
+        }
+
+        private void Update()
+        {
+            UpdateLights(ShouldBeOn(), _forceUpdate);
+            _forceUpdate = false;
         }
 
         private void TrainsetUpdate(Trainset trainset)
         {
-            UpdateLights(ShouldBeOn(), true);
-        }
-
-        private void TimeUpdate()
-        {
-            UpdateLights(ShouldBeOn());
+            _forceUpdate = true;
         }
 
         private void UpdateLights(bool on, bool forced = false)

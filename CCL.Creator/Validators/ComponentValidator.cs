@@ -1,4 +1,5 @@
-﻿using CCL.Types;
+﻿using CCL.Creator.Utility;
+using CCL.Types;
 using CCL.Types.Proxies.Simulation.Steam;
 using UnityEngine;
 
@@ -74,6 +75,16 @@ namespace CCL.Creator.Validators
                         Debug.LogWarning($"Unknown self validation result from {self.name}/{self.GetType().Name}");
                         continue;
                 }
+            }
+
+            var editorComps = prefab.GetComponentsInChildren<IEditorComponent>();
+            count += editorComps.Length;
+
+            foreach (var comp in editorComps)
+            {
+                if (!(comp is Component self)) continue;
+
+                result.Fail(AddCompToMessage(self, "editor-only component must be removed before exporting"), self);
             }
 
             return count;

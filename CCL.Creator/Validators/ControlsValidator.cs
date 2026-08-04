@@ -1,6 +1,7 @@
 ﻿using CCL.Types;
 using CCL.Types.Proxies.Controls;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using UnityEngine;
 
 namespace CCL.Creator.Validators
@@ -41,10 +42,21 @@ namespace CCL.Creator.Validators
                             control, nameof(control.colliderGameObjects));
                         break;
                     }
+                    
+                    var colliders = go.GetComponentsInChildren<Collider>();
 
-                    if (ComponentUtil.HasComponent<Collider>(go))
+                    if (colliders.Length > 0)
                     {
                         hasCol = true;
+
+                        foreach (var collider in colliders)
+                        {
+                            if (collider.isTrigger)
+                            {
+                                result.Warning($"Control '{control.name}'/ collider '{collider.name}' is set to trigger, but shouldn't",
+                                    collider, nameof(collider.isTrigger));
+                            }
+                        }
                     }
                 }
 
@@ -92,6 +104,33 @@ namespace CCL.Creator.Validators
                 if (string.IsNullOrEmpty(feeder.portId))
                 {
                     result.Warning($"Missing Port ID in InteractablePortFeeder '{feeder.name}'", feeder, nameof(feeder.portId));
+                }
+            }
+
+            foreach (var kInput in prefab.GetComponentsInChildren<AKeyboardInputProxy>())
+            {
+                switch (kInput)
+                {
+                    case ButtonSetValueFromAxisInputProxy _:
+                        if (!ComponentUtil.HasComponent<ButtonProxy>(kInput))
+                        {
+                            result.Fail($"ButtonSetValueFromAxisInputProxy lacks a ButtonProxy", kInput);
+                        }
+                        break;
+                    case ButtonUseKeyboardInputProxy _:
+                        if (!ComponentUtil.HasComponent<ButtonProxy>(kInput))
+                        {
+                            result.Fail($"ButtonUseKeyboardInputProxy lacks a ButtonProxy", kInput);
+                        }
+                        break;
+                    case ToggleSwitchUseKeyboardInputProxy _:
+                        if (!ComponentUtil.HasComponent<ToggleSwitchProxy>(kInput))
+                        {
+                            result.Fail($"ToggleSwitchUseKeyboardInputProxy lacks a ToggleSwitchProxy", kInput);
+                        }
+                        break;
+                    default:
+                        break;
                 }
             }
 

@@ -5,7 +5,7 @@ using UnityEngine;
 namespace CCL.Creator.Utility
 {
     [AddComponentMenu("CCL Editor/Audio Tester")]
-    internal class AudioTester : MonoBehaviour
+    internal class AudioTester : MonoBehaviour, IEditorComponent
     {
         public LayeredAudioProxy Audio = null!;
         [Range(0f, 1f)]

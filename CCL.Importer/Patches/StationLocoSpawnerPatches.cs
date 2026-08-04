@@ -29,12 +29,13 @@ namespace CCL.Importer.Patches
 
                 foreach (var variant in car.Variants)
                 {
+                    if (!CarManager.IsCarLiveryEnabled(variant)) continue;
+
                     foreach (var group in variant.LocoSpawnGroups)
                     {
                         // If the group is supposed to use this spawner...
                         if (group.Track.ToName() == __instance.name)
                         {
-
                             if (CCLPlugin.Settings.KeepDE2Spawns && group.IsDE2ExclusiveSpawn())
                             {
                                 CCLPlugin.Log($"Skipping loco spawn group for '{variant.id}' ({group.Track} is DE2 exclusive)");

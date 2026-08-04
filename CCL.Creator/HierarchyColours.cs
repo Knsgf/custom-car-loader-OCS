@@ -1,6 +1,7 @@
 ﻿using CCL.Creator.Utility;
 using CCL.Types;
 using CCL.Types.Proxies;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -23,6 +24,7 @@ namespace CCL.Creator
         private static readonly Vector2 OffsetFull = new Vector2(58, 0);
         private static readonly Vector2 OffsetFullEnd = new Vector2(18, 0);
         private static readonly Color ColourPrefab = new Color32(125, 173, 243, 255);
+        private static readonly Dictionary<string, GUIContent> s_iconContentDict = new Dictionary<string, GUIContent>();
 
         private static bool DarkMode => EditorGUIUtility.isProSkin;
         private static Color BackgroundColour => DarkMode ? new Color32(56, 56, 56, 255) : new Color32(194, 194, 194, 255);
@@ -61,7 +63,7 @@ namespace CCL.Creator
                     if (go.transform.Find(CarPartNames.Colliders.COLLISION) &&
                         go.transform.Find(CarPartNames.Colliders.WALKABLE))
                     {
-                        content = EditorGUIUtility.IconContent("BoxCollider Icon");
+                        content = GetCachedContent("BoxCollider Icon");
                         content.tooltip = "The root of all colliders";
                         txC = EditorHelpers.Colors.CONFIRM_ACTION;
                     }
@@ -75,7 +77,7 @@ namespace CCL.Creator
                 case CarPartNames.Colliders.ITEMS:
                 case CarPartNames.Colliders.CAMERA_DAMPENING:
                     if (!CheckOrigin(go)) break;
-                    content = EditorGUIUtility.IconContent("BoxCollider Icon");
+                    content = GetCachedContent("BoxCollider Icon");
                     content.tooltip = "A collider group root";
                     txC = EditorHelpers.Colors.CONFIRM_ACTION;
                     break;
@@ -119,6 +121,13 @@ namespace CCL.Creator
                     {
                         SetWarning($"This object must be under {CarPartNames.Colliders.ITEMS} to work");
                     }
+                    break;
+                case "[buffers]":
+                    if (go.transform.parent == null) break;
+                    if (go.transform.parent.name != CarPartNames.Colliders.WALKABLE &&
+                        go.transform.parent.name != CarPartNames.Colliders.ITEMS) break;
+                    TrySetContentToTexture("Buffers", "This is a special CCL name, for buffer collider compatibility with ZCouplers");
+                    txC = EditorHelpers.Colors.CONFIRM_ACTION;
                     break;
 
                 // Bogies.
@@ -164,6 +173,11 @@ namespace CCL.Creator
                 // Car plates.
                 case "[car plate anchor1]":
                 case "[car plate anchor2]":
+                    if (!IsUnderRoot(go))
+                    {
+                        SetBadEntry("This object must be a child of the root");
+                        break;
+                    }
                     TrySetContentToTexture("CarPlate", "This is one of the car plates");
                     txC = EditorHelpers.Colors.CONFIRM_ACTION;
                     break;
@@ -184,7 +198,7 @@ namespace CCL.Creator
                 case CarPartNames.FuelPorts.DUMMY_CHARGE_PORT_BE2:
                     if (IsUnderRoot(go))
                     {
-                        content = EditorGUIUtility.IconContent("ReflectionProbe Icon");
+                        content = GetCachedContent("ReflectionProbe Icon");
                         content.tooltip = "This object will be replaced at runtime by another";
                         txC = EditorHelpers.Colors.CONFIRM_ACTION;
                     }
@@ -196,7 +210,7 @@ namespace CCL.Creator
 
                 // Dummy rain audio.
                 case CarPartNames.Audio.RAIN_DUMMY_TRANSFORM:
-                    content = EditorGUIUtility.IconContent("CloudConnect@2x");
+                    content = GetCachedContent("CloudConnect@2x");
                     txC = EditorHelpers.Colors.CONFIRM_ACTION;
                     break;
 
@@ -207,7 +221,7 @@ namespace CCL.Creator
                 case CarPartNames.Cab.TELEPORT_ROOT:
                     if (IsUnderRoot(go))
                     {
-                        content = EditorGUIUtility.IconContent("Transform Icon");
+                        content = GetCachedContent("Transform Icon");
                         txC = EditorHelpers.Colors.CONFIRM_ACTION;
                     }
                     else
@@ -222,7 +236,7 @@ namespace CCL.Creator
                     var headlightParent = go.transform.parent;
                     if (headlightParent != null && headlightParent.name == "[headlights]")
                     {
-                        content = EditorGUIUtility.IconContent("Lighting");
+                        content = GetCachedContent("Lighting");
                         txC = EditorHelpers.Colors.CONFIRM_ACTION;
                     }
                     break;
@@ -231,7 +245,7 @@ namespace CCL.Creator
                 case "[sim]":
                     if (go.GetComponent<Types.Proxies.Ports.SimConnectionsDefinitionProxy>() != null)
                     {
-                        content = EditorGUIUtility.IconContent("AudioMixerController Icon");
+                        content = GetCachedContent("AudioMixerController Icon");
                         txC = EditorHelpers.Colors.CONFIRM_ACTION;
                         content.tooltip = "The main simulation object";
                     }
@@ -265,14 +279,14 @@ namespace CCL.Creator
 
             void SetBadEntry(string? reason = null)
             {
-                content = EditorGUIUtility.IconContent("Error@2x");
+                content = GetCachedContent("Error@2x");
                 content.tooltip = string.IsNullOrEmpty(reason) ? "This object is incorrectly set up" : reason;
                 txC = EditorHelpers.Colors.DELETE_ACTION;
             }
 
             void SetWarning(string? reason = null)
             {
-                content = EditorGUIUtility.IconContent("Warning@2x");
+                content = GetCachedContent("Warning@2x");
                 content.tooltip = string.IsNullOrEmpty(reason) ? "This object might be incorrectly set up" : reason;
                 txC = EditorHelpers.Colors.WARNING;
             }
@@ -339,9 +353,21 @@ namespace CCL.Creator
 
         private static GUIContent GetDefaultIconContent(PrefabType type, bool selected) => type switch
         {
-            PrefabType.Root => EditorGUIUtility.IconContent(selected ? "Prefab On Icon" : "Prefab Icon"),
-            _ => EditorGUIUtility.IconContent(selected ? "GameObject On Icon" : "GameObject Icon"),
+            PrefabType.Root => GetCachedContent(selected ? "Prefab On Icon" : "Prefab Icon"),
+            _ => GetCachedContent(selected ? "GameObject On Icon" : "GameObject Icon"),
         };
+
+        private static GUIContent GetCachedContent(string name)
+        {
+            if (s_iconContentDict.TryGetValue(name, out var content))
+            {
+                return content;
+            }
+
+            content = EditorGUIUtility.IconContent(name);
+            s_iconContentDict[name] = content;
+            return content;
+        }
 
         private static Color Darken(Color color) => new Color(color.r * 0.3f, color.g * 0.3f, color.b * 0.3f, color.a);
 

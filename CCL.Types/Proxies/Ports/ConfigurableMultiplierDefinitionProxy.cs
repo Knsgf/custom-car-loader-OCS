@@ -27,14 +27,16 @@ namespace CCL.Types.Proxies.Ports
         };
 
         [SerializeField, HideInInspector]
-        private string aJson;
+        private string? aJson;
         [SerializeField, HideInInspector]
-        private string bJson;
+        private string? bJson;
         [SerializeField, HideInInspector]
-        private string outJson;
+        private string? outJson;
 
-        public void OnValidate()
+        public override void OnValidate()
         {
+            base.OnValidate();
+
             aJson = JSONObject.ToJson(aReader);
             bJson = JSONObject.ToJson(bReader);
             outJson = JSONObject.ToJson(mulReadOut);

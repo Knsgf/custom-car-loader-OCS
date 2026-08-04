@@ -143,8 +143,10 @@ namespace CCL.Types.Proxies.Simulation.Electric
             }
         }
 
-        public void OnValidate()
+        public override void OnValidate()
         {
+            base.OnValidate();
+
             _configs = JSONObject.ToJson(configurations);
         }
 

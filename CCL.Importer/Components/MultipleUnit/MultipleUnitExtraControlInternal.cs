@@ -44,7 +44,10 @@ namespace CCL.Importer.Components.MultipleUnit
             {
                 foreach (var device in _module.RemoteChannel.devices)
                 {
-                    TrySetValue(device);
+                    if (ModuleCheck(device))
+                    {
+                        TrySetValue(device);
+                    }
                 }
             }
 
@@ -63,13 +66,19 @@ namespace CCL.Importer.Components.MultipleUnit
 
                 direction = !cable.connectedTo.isFront;
                 module = cable.connectedTo.muModule;
-                TrySetValue(module);
+
+                if (ModuleCheck(module))
+                {
+                    TrySetValue(module);
+                }
             }
         }
 
-        private void TrySetValue(MultipleUnitModule module)
+        private bool ModuleCheck(MultipleUnitModule module) => module != _module;
+
+        protected virtual void TrySetValue(MultipleUnitModule module)
         {
-            if (module != _module && module.train.TryGetComponent(out T comp))
+            if (module.train.TryGetComponent(out T comp))
             {
                 comp.SetValue((T)this);
             }

@@ -46,8 +46,10 @@ namespace CCL.Types.Components.Simulation
             GetFullPortId(OutputFuse.id)
         };
 
-        public void OnValidate()
+        public override void OnValidate()
         {
+            base.OnValidate();
+
             _json = JSONObject.ToJson(OutputFuse);
         }
 

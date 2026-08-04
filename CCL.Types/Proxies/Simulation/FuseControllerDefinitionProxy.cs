@@ -32,8 +32,10 @@ namespace CCL.Types.Proxies.Simulation
             fuseId
         };
 
-        public void OnValidate()
+        public override void OnValidate()
         {
+            base.OnValidate();
+
             _json = JSONObject.ToJson(controllingPort);
         }
 
