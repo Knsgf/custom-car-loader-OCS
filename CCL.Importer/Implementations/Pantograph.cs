@@ -4,11 +4,16 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using UnityEngine;
+
+using CCL.Importer.Components.Simulation.Electric;
+
+using DV.VFX;
 
 using LocoSim.Implementations;
 
-using CCL.Importer.Components.Simulation.Electric;
+using UnityEngine;
+
+using static UnityEngine.UI.CanvasScaler;
 
 namespace CCL.Importer.Implementations
 {
@@ -32,13 +37,13 @@ namespace CCL.Importer.Implementations
 		private Func<Transform, Transform, Transform, Transform, float, (float?, float)>? GetWireHeightAndVoltage = null;
 		
 		private readonly FuseReference _masterFuse, _pantographToggle;
-		private readonly Port          _voltageReadOut, _voltageNormalizedReadOut, _heightReadOut, _heightNormalizedReadOut;
+		private readonly Port          _voltageReadOut, _voltageNormalizedReadOut, _raiseReadOut, _raiseNormalizedReadOut;
 		private readonly PortReference _pantographLoad;
 
 		private readonly TrainCar?  _unit;
 		private readonly Transform? _base, _stripEnd1, _stripEnd2;
 
-		private readonly float _minimumRaise = 0.0f, _maximumRaise, _maximumHeightDifference, _headMovementSpeed;
+		private readonly float _minimumRaise = 0.0f, _maximumRaise, _maximumRaiseDifference, _headMovementSpeed;
 		private readonly int   _IDMask, _IDInvertedMask;
 		private readonly bool  _ignoreContactWhenExtending;
 		
@@ -109,6 +114,11 @@ namespace CCL.Importer.Implementations
 			TryGetOCSType();
 		}
 
+		private static float StripMidpointHeight(TrainCar unit, Transform stripEnd1, Transform stripEnd2)
+		{
+			return unit.transform.InverseTransformPoint((stripEnd1.position + stripEnd2.position) / 2.0f).y;
+		}
+
 		public Pantograph(PantographDefinitionInternal definition): base(definition.ID)
 		{
 			_base                       = definition.pantographBase;
@@ -122,10 +132,9 @@ namespace CCL.Importer.Implementations
 			_pantographToggle         = AddFuseReference(definition.pantographToggleId );
 			_voltageReadOut           = AddPort(definition.supplyVoltage            );
 			_voltageNormalizedReadOut = AddPort(definition.supplyVoltageNormalized  );
-			_heightReadOut            = AddPort(definition.pantographRaise          , _minimumRaise);
-			_heightNormalizedReadOut  = AddPort(definition.pantographRaiseNormalized);
+			_raiseReadOut             = AddPort(definition.pantographRaise          );
+			_raiseNormalizedReadOut   = AddPort(definition.pantographRaiseNormalized);
 			_pantographLoad           = AddPortReference(definition.currentDraw);
-			Debug.Log($"CCL PNT {_minimumRaise} {definition.maximumRaise} {definition.headMovementSpeed}");
 
 			_unit = TrainCar.Resolve(definition.pantographBase);
 			Debug.Log($"CCL PNT <{_unit?.name ?? "NULL"}>");
@@ -133,8 +142,13 @@ namespace CCL.Importer.Implementations
 			if (unit == null)
 				return;
 			if (_stripEnd1 != null && _stripEnd2 != null)
-				_minimumRaise = unit.transform.InverseTransformPoint((_stripEnd1.position + _stripEnd2.position) / 2.0f).y;
-			_maximumHeightDifference = Mathf.Max(_maximumRaise - _minimumRaise, 0.001f);
+				_raiseReadOut.Value = _minimumRaise = StripMidpointHeight(unit, _stripEnd1, _stripEnd2);
+			if (definition.relativeToInitialPosition)
+				_maximumRaise += _minimumRaise;
+			if (_maximumRaise < _minimumRaise + 0.001f)
+				_maximumRaise = _minimumRaise + 0.001f;
+			_maximumRaiseDifference = _maximumRaise - _minimumRaise;
+			Debug.Log($"CCL PNT {_minimumRaise} {definition.maximumRaise} {_maximumRaiseDifference} {definition.headMovementSpeed}");
 
 			if (_allPantographs.TryGetValue(unit, out List<Pantograph> installedPantographs))
 			{
@@ -150,6 +164,7 @@ namespace CCL.Importer.Implementations
 				unit.OnCarAboutToBeDestroyed += OnCarDestroyed;
 			}
 			_IDInvertedMask = ~_IDMask;
+			Debug.Log($"CCL PNT {_IDMask} {_IDInvertedMask} {_allPantographs[unit].Count} {_nextPantographID[unit]}");
 			
 			SetUpCatenaryConnection();
 		}
@@ -199,17 +214,14 @@ namespace CCL.Importer.Implementations
 		private bool trackContactState(float? wireHeight)
 		{
 			TrainCar? unit = _unit;
-			if (unit == null || _stripEnd1 == null || _stripEnd2 == null)
+			if (_unitDestroyed || unit == null || _stripEnd1 == null || _stripEnd2 == null)
 				return false;
 			bool wasInContact = (_raisedPantographMask[unit] & _IDMask) != 0;
 			bool nowInContact;
 			if (wireHeight == null)
 				nowInContact = false;
 			else
-			{ 
-				float stripMiddleHeight = unit.transform.InverseTransformPoint((_stripEnd1.position + _stripEnd2.position) / 2.0f).y;
-				nowInContact            = Mathf.Abs((float) wireHeight - stripMiddleHeight) <= 0.2f;
-			}
+				nowInContact = Mathf.Abs((float) wireHeight - StripMidpointHeight(unit, _stripEnd1, _stripEnd2)) <= 0.2f;
 			if (nowInContact != wasInContact)
 			{
 				if (nowInContact)
@@ -228,21 +240,23 @@ namespace CCL.Importer.Implementations
 		
 		private void Move(float delta, float raiseHeight)
 		{
-			float targetHeight     = (_pantographToggle.State && _masterFuse.State) ? raiseHeight : _minimumRaise;
-			float currentHeight    = _heightReadOut.Value;
-			float heightDifference = targetHeight - currentHeight;
-			float movementSpeed    = Mathf.Min(_headMovementSpeed, Mathf.Abs(heightDifference) / 0.2f);
-			if (heightDifference > 0.006f)
+			if (_unitDestroyed || _unit == null || _stripEnd1 == null || _stripEnd2 == null)
+				return;
+			float targetRaise     = (_pantographToggle.State && _masterFuse.State) ? raiseHeight : _minimumRaise;
+			float currentRaise    = _raiseReadOut.Value;
+			float raiseDifference = targetRaise - (_ignoreContactWhenExtending ? currentRaise : StripMidpointHeight(_unit, _stripEnd1, _stripEnd2));
+			float movementSpeed   = Mathf.Min(_headMovementSpeed, Mathf.Abs(raiseDifference) / 0.2f);
+			if (raiseDifference > 0.006f)
 			{
-				currentHeight                  = Mathf.Min(currentHeight + movementSpeed * delta, _maximumRaise);
-				_heightReadOut.Value           = currentHeight;
-				_heightNormalizedReadOut.Value = (currentHeight - _minimumRaise) / _maximumHeightDifference;
+				currentRaise                  = Mathf.Min(currentRaise + movementSpeed * delta, _maximumRaise);
+				_raiseReadOut.Value           = currentRaise;
+				_raiseNormalizedReadOut.Value = Mathf.Clamp((currentRaise - _minimumRaise) / _maximumRaiseDifference, 0.0f, 0.999f);
 			}
-			else if (heightDifference < -0.006f)
+			else if (raiseDifference < -0.006f)
 			{
-				currentHeight                  = Mathf.Max(currentHeight - movementSpeed * delta, _minimumRaise);
-				_heightReadOut.Value           = currentHeight;
-				_heightNormalizedReadOut.Value = (currentHeight - _minimumRaise) / _maximumHeightDifference;
+				currentRaise                  = Mathf.Max(currentRaise - movementSpeed * delta, _minimumRaise);
+				_raiseReadOut.Value           = currentRaise;
+				_raiseNormalizedReadOut.Value = Mathf.Clamp((currentRaise - _minimumRaise) / _maximumRaiseDifference, 0.0f, 0.999f);
 			}
 		}
 
