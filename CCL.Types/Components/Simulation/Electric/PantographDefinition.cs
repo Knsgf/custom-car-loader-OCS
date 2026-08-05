@@ -1,8 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 using CCL.Types.Proxies.Ports;
@@ -18,7 +14,7 @@ namespace CCL.Types.Components.Simulation.Electric
 		[Min(0.01f)]
 		public float headMovementSpeed;
 
-		[Min(0.0f), Tooltip("Maximum reach height (offset for side pantographs). The minimum height is taken from initial position. Must match the reach from pantograph animation")]
+		[Min(0.0f), Tooltip("Maximum reach height. The minimum height is taken from initial position. Must match the reach from pantograph animation")]
 		public float maximumRaise;
 
 		[Min(0.01f), Tooltip("Maximum vertical offset between wire and strip midpoint for a contact to register")]

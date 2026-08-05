@@ -1,15 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using CCL.Importer.Implementations;
+using UnityEngine;
 
 using LocoSim.Definitions;
 using LocoSim.Implementations;
 
-using UnityEngine;
+using CCL.Importer.Implementations;
 
 namespace CCL.Importer.Components.Simulation.Electric
 {
