@@ -20,8 +20,8 @@ MonoBehaviour:
   NameTranslations:
     Items:
     - Language: 0
-      Value: WE4PT
-  NameTranslationJson: '[{"Language":"English","Value":"WE4PT"}]'
+      Value: WE4PT-290
+  NameTranslationJson: '[{"Language":"English","Value":"WE4PT-290"}]'
   liveries:
   - {fileID: 11400000, guid: 20ea118cc5a5ce44999e4809c12c06e3, type: 2}
   mass: 25000
@@ -73,7 +73,8 @@ MonoBehaviour:
   Gauge: 1435
   unusedCarDeletePreventionMode: 10
   CargoSetup: {fileID: 0}
-  SimAudioPrefab: {fileID: 0}
+  SimAudioPrefab: {fileID: 2071166845568912837, guid: ac09e8123ff1df44795970e8cd151c4c,
+    type: 3}
   HUDLayout: {fileID: 0}
   GeneralLicense: 
   JobLicenses: []
