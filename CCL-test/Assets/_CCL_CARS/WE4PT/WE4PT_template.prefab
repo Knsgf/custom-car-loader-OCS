@@ -524,7 +524,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 26
+  m_RootOrder: 27
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8860080597082749550
 MonoBehaviour:
@@ -675,7 +675,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 25
+  m_RootOrder: 26
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5430459249338378456
 MonoBehaviour:
@@ -951,7 +951,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 13
+  m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7875516049335995137
 MonoBehaviour:
@@ -1535,7 +1535,7 @@ Transform:
   - {fileID: 790256611346686457}
   - {fileID: 2018785902465107393}
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 20
+  m_RootOrder: 21
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6495413697098693612
 MonoBehaviour:
@@ -2809,6 +2809,7 @@ Transform:
   - {fileID: 2594858519886304296}
   - {fileID: 5218887670375018505}
   - {fileID: 4143349481667661510}
+  - {fileID: 1278601080927956805}
   - {fileID: 8540118389285754596}
   - {fileID: 2355775096604272976}
   - {fileID: 2872509359694180389}
@@ -2861,6 +2862,8 @@ MonoBehaviour:
   - {fileID: 8845062959917103144}
   - {fileID: 6070338979381481687}
   - {fileID: 4824715608047862383}
+  - {fileID: 3224841026780605457}
+  - {fileID: 1224981582517208192}
   - {fileID: 7875516049335995137}
   - {fileID: 8161892729109003524}
   - {fileID: 8009042279941120359}
@@ -2955,8 +2958,18 @@ MonoBehaviour:
     portId: pantograph.VOLTAGE
   - portReferenceId: pantograph.TOGGLE
     portId: pantographSwitch.EXT_IN
+  - portReferenceId: chopperVoltagesDivider.SUPPLY_VOLTAGE
+    portId: pantograph.VOLTAGE
+  - portReferenceId: chopperVoltagesDivider.REGULATOR_VOLTAGE
+    portId: voltageRegulator.OUTPUT_VOLTAGE
+  - portReferenceId: chopperInputCurrentCalculator.VOLTAGE_RATIO
+    portId: chopperVoltagesDivider.VOLTAGE_RATIO
+  - portReferenceId: chopperInputCurrentCalculator.MOTOR_AMPS
+    portId: tm.TOTAL_AMPS
+  - portReferenceId: pantograph.CURRENT_DRAW
+    portId: chopperInputCurrentCalculator.INPUT_CURRENT
   connectionsJson: '[{"fullPortIdIn":"transmission.TORQUE_IN","fullPortIdOut":"tm.TORQUE_OUT"},{"fullPortIdIn":"traction.TORQUE_IN","fullPortIdOut":"transmission.TORQUE_OUT"}]'
-  portReferenceConnectionsJson: '[{"portId":"throttle.EXT_IN","portReferenceId":"throttleCurve.IN"},{"portId":"hornControl.CONTROL","portReferenceId":"horn.HORN_CONTROL"},{"portId":"batteryCharge.NORMALIZED","portReferenceId":"batteryController.NORMALIZED_CHARGE"},{"portId":"tm.POWER_IN","portReferenceId":"powerConsumptionCalculator.POWER_CONSUMPTION_0"},{"portId":"compressor.POWER_CONSUMPTION","portReferenceId":"powerConsumptionCalculator.POWER_CONSUMPTION_1"},{"portId":"sand.AMOUNT","portReferenceId":"sander.SAND"},{"portId":"sand.CONSUME_EXT_IN","portReferenceId":"sander.SAND_CONSUMPTION"},{"portId":"traction.WHEEL_RPM_EXT_IN","portReferenceId":"tmRpmCalculator.WHEEL_RPM"},{"portId":"transmission.GEAR_RATIO","portReferenceId":"tmRpmCalculator.GEAR_RATIO"},{"portId":"throttleCurve.OUT","portReferenceId":"voltageRegulator.THROTTLE"},{"portId":"tm.SINGLE_MOTOR_EFFECTIVE_RESISTANCE","portReferenceId":"voltageRegulator.SINGLE_MOTOR_EFFECTIVE_RESISTANCE"},{"portId":"throttle.EXT_IN","portReferenceId":"tm.THROTTLE"},{"portId":"reverser.REVERSER","portReferenceId":"tm.REVERSER"},{"portId":"tmRpmCalculator.TM_RPM","portReferenceId":"tm.MOTOR_RPM"},{"portId":"voltageRegulator.OUTPUT_VOLTAGE","portReferenceId":"tm.APPLIED_VOLTAGE"},{"portId":"tmHeat.TEMPERATURE","portReferenceId":"tm.TM_TEMPERATURE"},{"portId":"waterDetector.STATE_EXT_IN","portReferenceId":"tm.ENVIRONMENT_WATER_STATE"},{"portId":"tmHeat.TEMPERATURE","portReferenceId":"tmPassiveCooler.TEMPERATURE"},{"portId":"","portReferenceId":"tmPassiveCooler.TARGET_TEMPERATURE"},{"portId":"tm.HEAT_OUT","portReferenceId":"tmHeat.HEAT_IN_0"},{"portId":"tmPassiveCooler.HEAT_OUT","portReferenceId":"tmHeat.HEAT_IN_1"},{"portId":"cabLight.EXT_IN","portReferenceId":"cabLightLamp.INPUT"},{"portId":"tm.TMS_STATE","portReferenceId":"tmOfflineLamp.INPUT"},{"portId":"batteryCharge.NORMALIZED","portReferenceId":"batteryLamp.INPUT"},{"portId":"tmHeat.TEMPERATURE","portReferenceId":"tmOverheatLamp.INPUT"},{"portId":"sander.CONTROL_EXT_IN","portReferenceId":"sanderLamp.INPUT"},{"portId":"sand.NORMALIZED","portReferenceId":"sandLamp.INPUT"},{"portId":"headlightDecoder.FRONT_HEADLIGHTS_EXT_IN","portReferenceId":"headlightsFLamp.INPUT"},{"portId":"headlightDecoder.REAR_HEADLIGHTS_EXT_IN","portReferenceId":"headlightsRLamp.INPUT"},{"portId":"tm.AMPS_PER_TM","portReferenceId":"ampLamp.INPUT"},{"portId":"pantograph.VOLTAGE_NORMALIZED","portReferenceId":"compressor.VOLTAGE_NORMALIZED"},{"portId":"pantograph.VOLTAGE","portReferenceId":"voltageRegulator.SUPPLY_VOLTAGE"},{"portId":"pantographSwitch.EXT_IN","portReferenceId":"pantograph.TOGGLE"}]'
+  portReferenceConnectionsJson: '[{"portId":"throttle.EXT_IN","portReferenceId":"throttleCurve.IN"},{"portId":"hornControl.CONTROL","portReferenceId":"horn.HORN_CONTROL"},{"portId":"batteryCharge.NORMALIZED","portReferenceId":"batteryController.NORMALIZED_CHARGE"},{"portId":"tm.POWER_IN","portReferenceId":"powerConsumptionCalculator.POWER_CONSUMPTION_0"},{"portId":"compressor.POWER_CONSUMPTION","portReferenceId":"powerConsumptionCalculator.POWER_CONSUMPTION_1"},{"portId":"sand.AMOUNT","portReferenceId":"sander.SAND"},{"portId":"sand.CONSUME_EXT_IN","portReferenceId":"sander.SAND_CONSUMPTION"},{"portId":"traction.WHEEL_RPM_EXT_IN","portReferenceId":"tmRpmCalculator.WHEEL_RPM"},{"portId":"transmission.GEAR_RATIO","portReferenceId":"tmRpmCalculator.GEAR_RATIO"},{"portId":"throttleCurve.OUT","portReferenceId":"voltageRegulator.THROTTLE"},{"portId":"tm.SINGLE_MOTOR_EFFECTIVE_RESISTANCE","portReferenceId":"voltageRegulator.SINGLE_MOTOR_EFFECTIVE_RESISTANCE"},{"portId":"throttle.EXT_IN","portReferenceId":"tm.THROTTLE"},{"portId":"reverser.REVERSER","portReferenceId":"tm.REVERSER"},{"portId":"tmRpmCalculator.TM_RPM","portReferenceId":"tm.MOTOR_RPM"},{"portId":"voltageRegulator.OUTPUT_VOLTAGE","portReferenceId":"tm.APPLIED_VOLTAGE"},{"portId":"tmHeat.TEMPERATURE","portReferenceId":"tm.TM_TEMPERATURE"},{"portId":"waterDetector.STATE_EXT_IN","portReferenceId":"tm.ENVIRONMENT_WATER_STATE"},{"portId":"tmHeat.TEMPERATURE","portReferenceId":"tmPassiveCooler.TEMPERATURE"},{"portId":"","portReferenceId":"tmPassiveCooler.TARGET_TEMPERATURE"},{"portId":"tm.HEAT_OUT","portReferenceId":"tmHeat.HEAT_IN_0"},{"portId":"tmPassiveCooler.HEAT_OUT","portReferenceId":"tmHeat.HEAT_IN_1"},{"portId":"cabLight.EXT_IN","portReferenceId":"cabLightLamp.INPUT"},{"portId":"tm.TMS_STATE","portReferenceId":"tmOfflineLamp.INPUT"},{"portId":"batteryCharge.NORMALIZED","portReferenceId":"batteryLamp.INPUT"},{"portId":"tmHeat.TEMPERATURE","portReferenceId":"tmOverheatLamp.INPUT"},{"portId":"sander.CONTROL_EXT_IN","portReferenceId":"sanderLamp.INPUT"},{"portId":"sand.NORMALIZED","portReferenceId":"sandLamp.INPUT"},{"portId":"headlightDecoder.FRONT_HEADLIGHTS_EXT_IN","portReferenceId":"headlightsFLamp.INPUT"},{"portId":"headlightDecoder.REAR_HEADLIGHTS_EXT_IN","portReferenceId":"headlightsRLamp.INPUT"},{"portId":"tm.AMPS_PER_TM","portReferenceId":"ampLamp.INPUT"},{"portId":"pantograph.VOLTAGE_NORMALIZED","portReferenceId":"compressor.VOLTAGE_NORMALIZED"},{"portId":"pantograph.VOLTAGE","portReferenceId":"voltageRegulator.SUPPLY_VOLTAGE"},{"portId":"pantographSwitch.EXT_IN","portReferenceId":"pantograph.TOGGLE"},{"portId":"pantograph.VOLTAGE","portReferenceId":"chopperVoltagesDivider.SUPPLY_VOLTAGE"},{"portId":"voltageRegulator.OUTPUT_VOLTAGE","portReferenceId":"chopperVoltagesDivider.REGULATOR_VOLTAGE"},{"portId":"chopperVoltagesDivider.VOLTAGE_RATIO","portReferenceId":"chopperInputCurrentCalculator.VOLTAGE_RATIO"},{"portId":"tm.TOTAL_AMPS","portReferenceId":"chopperInputCurrentCalculator.MOTOR_AMPS"},{"portId":"chopperInputCurrentCalculator.INPUT_CURRENT","portReferenceId":"pantograph.CURRENT_DRAW"}]'
 --- !u!114 &3460042016622701125
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3107,7 +3120,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 27
+  m_RootOrder: 28
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2824735347832886835
 MonoBehaviour:
@@ -3168,7 +3181,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 21
+  m_RootOrder: 22
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2086967694992554046
 MonoBehaviour:
@@ -3504,7 +3517,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 17
+  m_RootOrder: 18
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3486696345912907028
 MonoBehaviour:
@@ -3657,7 +3670,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 23
+  m_RootOrder: 24
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5582281364670609975
 MonoBehaviour:
@@ -4088,6 +4101,68 @@ Transform:
   m_Father: {fileID: 3477205538621110185}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3794699007363556242
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1278601080927956805}
+  - component: {fileID: 3224841026780605457}
+  m_Layer: 0
+  m_Name: chopperInputCurrentCalculator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1278601080927956805
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3794699007363556242}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 8672686514585704609}
+  m_Father: {fileID: 5672157207868484993}
+  m_RootOrder: 13
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3224841026780605457
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3794699007363556242}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1464646225, guid: b247489fc36790c41b197410cd8386d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ID: chopperInputCurrentCalculator
+  aReader:
+    valueType: 105
+    ID: MOTOR_AMPS
+    writeAllowed: 0
+  bReader:
+    valueType: 106
+    ID: VOLTAGE_RATIO
+    writeAllowed: 0
+  mulReadOut:
+    type: 3
+    valueType: 105
+    ID: INPUT_CURRENT
+  invertA: 0
+  invertB: 0
+  aJson: '{"ID":"MOTOR_AMPS","valueType":"AMPS","writeAllowed":false}'
+  bJson: '{"ID":"VOLTAGE_RATIO","valueType":"VOLTS","writeAllowed":false}'
+  outJson: '{"ID":"INPUT_CURRENT","type":"READONLY_OUT","valueType":"AMPS"}'
 --- !u!1 &3893865212801361811
 GameObject:
   m_ObjectHideFlags: 0
@@ -4117,7 +4192,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 19
+  m_RootOrder: 20
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5095539479376409426
 MonoBehaviour:
@@ -5043,7 +5118,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 30
+  m_RootOrder: 31
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2136570730274246026
 MonoBehaviour:
@@ -5135,7 +5210,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 22
+  m_RootOrder: 23
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3862538945163008659
 MonoBehaviour:
@@ -5260,7 +5335,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 28
+  m_RootOrder: 29
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5886519251020968676
 MonoBehaviour:
@@ -5320,7 +5395,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 18
+  m_RootOrder: 19
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2069536941270275716
 MonoBehaviour:
@@ -5459,7 +5534,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 14
+  m_RootOrder: 15
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5407105370820690894
 GameObject:
@@ -5854,7 +5929,8 @@ MonoBehaviour:
   - tm.MOTOR_VOLTS
   - tmHeat.TEMPERATURE
   - throttleCurve.OUT
-  - pantographSwitch.EXT_IN
+  - chopperVoltagesDivider.VOLTAGE_RATIO
+  - chopperInputCurrentCalculator.INPUT_CURRENT
   PortReferenceIds:
   - voltageRegulator.SUPPLY_VOLTAGE
   UseColours: 1
@@ -6085,7 +6161,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 32
+  m_RootOrder: 33
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7973733510547097469
 MonoBehaviour:
@@ -6206,7 +6282,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 31
+  m_RootOrder: 32
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8266819287410642514
 MonoBehaviour:
@@ -6607,7 +6683,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 24
+  m_RootOrder: 25
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &702344938991132358
 MonoBehaviour:
@@ -6695,7 +6771,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 29
+  m_RootOrder: 30
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6791375752745268559
 MonoBehaviour:
@@ -7139,7 +7215,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 15
+  m_RootOrder: 16
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8161892729109003524
 MonoBehaviour:
@@ -7196,7 +7272,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 33
+  m_RootOrder: 34
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5313591845246324350
 MonoBehaviour:
@@ -7261,6 +7337,67 @@ Transform:
   m_Father: {fileID: 6923559146813231640}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &8619070295414054728
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8672686514585704609}
+  - component: {fileID: 1224981582517208192}
+  m_Layer: 0
+  m_Name: chopperVoltagesDivider
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8672686514585704609
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8619070295414054728}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1278601080927956805}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1224981582517208192
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8619070295414054728}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1464646225, guid: b247489fc36790c41b197410cd8386d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ID: chopperVoltagesDivider
+  aReader:
+    valueType: 106
+    ID: SUPPLY_VOLTAGE
+    writeAllowed: 0
+  bReader:
+    valueType: 106
+    ID: REGULATOR_VOLTAGE
+    writeAllowed: 0
+  mulReadOut:
+    type: 3
+    valueType: 106
+    ID: VOLTAGE_RATIO
+  invertA: 1
+  invertB: 0
+  aJson: '{"ID":"SUPPLY_VOLTAGE","valueType":"VOLTS","writeAllowed":false}'
+  bJson: '{"ID":"REGULATOR_VOLTAGE","valueType":"VOLTS","writeAllowed":false}'
+  outJson: '{"ID":"VOLTAGE_RATIO","type":"READONLY_OUT","valueType":"VOLTS"}'
 --- !u!1 &8624355319595818684
 GameObject:
   m_ObjectHideFlags: 0
@@ -7351,7 +7488,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5672157207868484993}
-  m_RootOrder: 16
+  m_RootOrder: 17
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8009042279941120359
 MonoBehaviour:
