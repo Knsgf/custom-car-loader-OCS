@@ -197,21 +197,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1136101908720612915, guid: ab944accb3b5510488ab4cf6753b9e59,
-        type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: 334018fcaa67be541a51524c9387a460, type: 2}
     - target: {fileID: 1312500395324393714, guid: ab944accb3b5510488ab4cf6753b9e59,
         type: 3}
       propertyPath: m_Name
       value: WE4PT_interactables
       objectReference: {fileID: 0}
-    - target: {fileID: 4854850611608024366, guid: ab944accb3b5510488ab4cf6753b9e59,
-        type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: 334018fcaa67be541a51524c9387a460, type: 2}
     - target: {fileID: 7827193555322370895, guid: ab944accb3b5510488ab4cf6753b9e59,
         type: 3}
       propertyPath: m_RootOrder
