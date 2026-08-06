@@ -23,6 +23,9 @@ namespace CCL.Types.Components.Simulation.Electric
 		[Min(0.01f), Tooltip("Maximum vertical offset between wire and strip midpoint for a contact to register")]
 		public float contactTolerance = 0.2f;
 
+		[Min(0.0f), Tooltip("Electric charge consumption multiplier for calculating electricity fees. The default setting is equivalent to $10/kWh")]
+		public float electricChargeConsumptionFactor = 10.0f / 15.0f;
+
 		[FuseId(true)]
 		public string masterControlFuseId = string.Empty;
 
@@ -31,13 +34,15 @@ namespace CCL.Types.Components.Simulation.Electric
 			new PortDefinition(DVPortType.READONLY_OUT, DVPortValueType.VOLTS  , "VOLTAGE"                    ),
 			new PortDefinition(DVPortType.READONLY_OUT, DVPortValueType.VOLTS  , "VOLTAGE_NORMALIZED"         ),
 			new PortDefinition(DVPortType.READONLY_OUT, DVPortValueType.GENERIC, "PANTOGRAPH_RAISE"           ),
-			new PortDefinition(DVPortType.READONLY_OUT, DVPortValueType.STATE  , "PANTOGRAPH_RAISE_NORMALIZED")
+			new PortDefinition(DVPortType.READONLY_OUT, DVPortValueType.STATE  , "PANTOGRAPH_RAISE_NORMALIZED"),
 		};
 
 		public override IEnumerable<PortReferenceDefinition> ExposedPortReferences => new[]
 		{
-			new PortReferenceDefinition(DVPortValueType.CONTROL,      "TOGGLE", writeAllowed: false),
-			new PortReferenceDefinition(DVPortValueType.AMPS   ,"CURRENT_DRAW", writeAllowed: false)
+			new PortReferenceDefinition(DVPortValueType.CONTROL        ,             "TOGGLE", writeAllowed: false),
+			new PortReferenceDefinition(DVPortValueType.AMPS           ,       "CURRENT_DRAW", writeAllowed: false),
+			new PortReferenceDefinition(DVPortValueType.ELECTRIC_CHARGE, "CHARGE_CONSUMPTION", writeAllowed: true ),
+			new PortReferenceDefinition(DVPortValueType.ELECTRIC_CHARGE,"CHARGE_REGENERATION", writeAllowed: true )
 		};
 
 		public IEnumerable<FuseIdField> ExposedFuseIdFields => new[]

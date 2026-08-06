@@ -2,15 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
-using System.Xml.Linq;
-
-using CCL.Importer.Components.Simulation.Electric;
-
-using LocoSim.Implementations;
-
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 
-using static UnityEngine.UI.CanvasScaler;
+using DV.JObjectExtstensions;
+using LocoSim.Implementations;
+
+using CCL.Importer.Components.Simulation.Electric;
 
 namespace CCL.Importer.Implementations
 {
@@ -22,7 +20,8 @@ namespace CCL.Importer.Implementations
 		const string OCSActivationEventName            = "catenary_activated";
 		const string OCSDeactivationEventName          = "catenary_deactivated";
 
-		const int initializationTimeOut = 3 * 60, retryTime = 5;
+		const int   initializationTimeOut = 3 * 60, retryTime = 5;
+		const float minimumMeterChange    = 1.0f / 16.0f;
 
 		private static readonly float _hugeHeight = Mathf.Sqrt(float.MaxValue / 2.0f);
 		
@@ -38,17 +37,20 @@ namespace CCL.Importer.Implementations
 		
 		private readonly FuseReference _masterFuse;
 		private readonly Port          _voltageReadOut, _voltageNormalizedReadOut, _raiseReadOut, _raiseNormalizedReadOut;
-		private readonly PortReference _pantographToggle, _pantographLoad;
+		private readonly PortReference _pantographToggle, _pantographLoad, _electricityConsumption, _electricityRegeneration;
 
 		private readonly TrainCar?  _unit;
 		private readonly Transform? _base, _stripEnd1, _stripEnd2;
 
-		private readonly float _nominalVoltage, _minimumRaise = 0.0f, _maximumRaise, _maximumRaiseDifference, _headMovementSpeed, _contactTolerance;
+		private readonly float _nominalVoltage, _energyConsumptionFactor;
+		private readonly float _minimumRaise = 0.0f, _maximumRaise, _maximumRaiseDifference, _headMovementSpeed, _contactTolerance;
 		private readonly int   _IDMask, _IDInvertedMask;
 		
-		private bool    _disabled       = false;
+		private bool    _disabled             = false, _isInContact = false;
 		private Vector3 _lastStripEndPosition = new Vector3(0.0f, _hugeHeight, 0.0f);
-		private float   _lastStripMidpointHeight;
+		private float   _lastStripMidpointHeight, _partialConsumption = 0.0f;
+
+		public override bool HasSaveData => true;
 
 		private static async void TryGetOCSType()
 		{
@@ -134,21 +136,24 @@ namespace CCL.Importer.Implementations
 
 		public Pantograph(PantographDefinitionInternal definition): base(definition.ID)
 		{
-			_base              = definition.pantographBase;
-			_stripEnd1         = definition.contactStripFirstEnd;
-			_stripEnd2         = definition.contactStripSecondEnd;
-			_nominalVoltage    = definition.nominalVoltage;
-			_headMovementSpeed = definition.headMovementSpeed;
-			_maximumRaise      = definition.maximumRaise;
-			_contactTolerance  = definition.contactTolerance;
+			_base                    = definition.pantographBase;
+			_stripEnd1               = definition.contactStripFirstEnd;
+			_stripEnd2               = definition.contactStripSecondEnd;
+			_nominalVoltage          = definition.nominalVoltage;
+			_energyConsumptionFactor = definition.electricChargeConsumptionFactor;
+			_headMovementSpeed       = definition.headMovementSpeed;
+			_maximumRaise            = definition.maximumRaise;
+			_contactTolerance        = definition.contactTolerance;
 
 			_masterFuse               = AddFuseReference(definition.masterControlFuseId);
 			_voltageReadOut           = AddPort(definition.supplyVoltage            );
 			_voltageNormalizedReadOut = AddPort(definition.supplyVoltageNormalized  );
 			_raiseReadOut             = AddPort(definition.pantographRaise          );
 			_raiseNormalizedReadOut   = AddPort(definition.pantographRaiseNormalized);
-			_pantographToggle         = AddPortReference(definition.toggle     );
-			_pantographLoad           = AddPortReference(definition.currentDraw);
+			_pantographToggle         = AddPortReference(definition.toggle            );
+			_pantographLoad           = AddPortReference(definition.currentDraw       );
+			_electricityConsumption   = AddPortReference(definition.chargeConsumption );
+			_electricityRegeneration  = AddPortReference(definition.chargeRegeneration);
 
 			if (_nominalVoltage <= 0.0f)
 			{
@@ -307,7 +312,7 @@ namespace CCL.Importer.Implementations
 			int    raisedPantographs = _raisedPantographCount[_unit];
 			bool   pantographOn      = _pantographToggle.Value >= 0.5f && _masterFuse.State;
 			float  load;
-			if (raisedPantographs == 0)
+			if (!_isInContact || raisedPantographs == 0)
 				load = 0.0f;
 			else
 			{
@@ -324,13 +329,42 @@ namespace CCL.Importer.Implementations
 			}
 			float raiseHeight = !pantographOn ? _minimumRaise : (wireHeight ?? _maximumRaise);
 			Move(delta, raiseHeight, pantographOn);
-			if (!trackContactState(wireHeight, pantographOn))
+			_isInContact = trackContactState(wireHeight, pantographOn);
+			if (!_isInContact)
 				_voltageReadOut.Value = _voltageNormalizedReadOut.Value = 0.0f;
 			else
 			{
 				_voltageReadOut.Value           = voltage;
 				_voltageNormalizedReadOut.Value = voltage / _nominalVoltage;
 			}
+
+			if (load != 0.0f)
+			{
+				_partialConsumption += (voltage * load / (1000.0f * 3600.0f)) * (delta * _energyConsumptionFactor);
+				while (_partialConsumption >= minimumMeterChange)
+				{
+					_electricityConsumption.Value = minimumMeterChange;
+					_partialConsumption          -= minimumMeterChange;
+				}
+				while (_partialConsumption <= -minimumMeterChange)
+				{
+					_electricityRegeneration.Value = minimumMeterChange;
+					_partialConsumption           += minimumMeterChange;
+				}
+			}
+		}
+
+		public override JObject GetSaveStateData()
+		{
+			JObject savedData = new();
+			savedData.SetFloat("leftoverEnergy", _partialConsumption);
+			return savedData;
+		}
+
+		public override void SetSaveStateData(JObject? savedData)
+		{
+			if (savedData != null)
+				_partialConsumption = savedData.GetFloat("leftoverEnergy") ?? 0.0f;
 		}
 	}
 }
