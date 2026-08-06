@@ -2,11 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
-using UnityEngine;
+using System.Xml.Linq;
+
+using CCL.Importer.Components.Simulation.Electric;
 
 using LocoSim.Implementations;
 
-using CCL.Importer.Components.Simulation.Electric;
+using UnityEngine;
+
+using static UnityEngine.UI.CanvasScaler;
 
 namespace CCL.Importer.Implementations
 {
@@ -25,6 +29,7 @@ namespace CCL.Importer.Implementations
 		private static Type?         _OCSType                     = null;
 		private static MethodInfo?   _getWireHeightAndVoltageInfo = null;
 		private static PropertyInfo? _OCSObjectInfo               = null;
+		private static object?       _OCSInstance                 = null;
 
 		private static Dictionary<TrainCar, List<Pantograph>> _allPantographs = new();
 		private static Dictionary<TrainCar, int> _nextPantographID = new(), _raisedPantographMask = new(), _raisedPantographCount = new();
@@ -38,10 +43,10 @@ namespace CCL.Importer.Implementations
 		private readonly TrainCar?  _unit;
 		private readonly Transform? _base, _stripEnd1, _stripEnd2;
 
-		private readonly float _minimumRaise = 0.0f, _maximumRaise, _maximumRaiseDifference, _headMovementSpeed, _contactTolerance;
+		private readonly float _nominalVoltage, _minimumRaise = 0.0f, _maximumRaise, _maximumRaiseDifference, _headMovementSpeed, _contactTolerance;
 		private readonly int   _IDMask, _IDInvertedMask;
 		
-		private bool    _unitDestroyed       = false;
+		private bool    _disabled       = false;
 		private Vector3 _lastStripEndPosition = new Vector3(0.0f, _hugeHeight, 0.0f);
 		private float   _lastStripMidpointHeight;
 
@@ -52,38 +57,44 @@ namespace CCL.Importer.Implementations
 				_OCSType = Type.GetType(OCSClassName, throwOnError: false);
 				if (_OCSType != null)
 					break;
-				Debug.Log($"CCL PNT RT={remainingTime}");
 				await Task.Delay(retryTime * 1000);
 			}
-			Debug.Log($"CCL PNT OCS {_OCSType?.ToString() ?? "NULL"}");
-			
-			if (_OCSType != null)
+			if (_OCSType == null)
 			{
-				_getWireHeightAndVoltageInfo = _OCSType.GetMethod(OCSWireHeightAndVoltageMethodName, 
-					new Type[] { typeof(Transform), typeof(Transform), typeof(Transform), typeof(Transform), typeof(float) });
-				Debug.Log($"CCL PNT GWHV {_getWireHeightAndVoltageInfo?.ToString() ?? "NULL"}");
-				_OCSObjectInfo = _OCSType.GetProperty(OCSPropertyName, BindingFlags.Public | BindingFlags.Static);
-				Debug.Log($"CCL PNT SYS {_OCSObjectInfo?.ToString() ?? "NULL"}");
-				EventInfo? OCSActivationInfo   = _OCSType.GetEvent(  OCSActivationEventName, BindingFlags.Public | BindingFlags.Static);
-				EventInfo? OCSDeactivationInfo = _OCSType.GetEvent(OCSDeactivationEventName, BindingFlags.Public | BindingFlags.Static);
-				if (OCSActivationInfo == null || OCSDeactivationInfo == null)
-				{
-					_OCSType = null;
-					return;
-				}
-				Debug.Log($"CCL PNT OCS+ {OCSActivationInfo}");
-				Debug.Log($"CCL PNT OCS- {OCSDeactivationInfo}");
-				OCSActivationInfo.AddEventHandler  (null, (Action) SetUpConnectionForAllPantographs);
-				OCSDeactivationInfo.AddEventHandler(null, (Action) SeverConnectionForAllPantographs);
-				SetUpConnectionForAllPantographs();
+				CCLPlugin.Log("Catenary not installed; overhead power will be unavailable");
+				return;
 			}
+			_getWireHeightAndVoltageInfo = _OCSType.GetMethod(OCSWireHeightAndVoltageMethodName, 
+				new Type[] { typeof(Transform), typeof(Transform), typeof(Transform), typeof(Transform), typeof(float) });
+			_OCSObjectInfo = _OCSType.GetProperty(OCSPropertyName, BindingFlags.Public | BindingFlags.Static);
+			EventInfo? OCSActivationInfo   = _OCSType.GetEvent(  OCSActivationEventName, BindingFlags.Public | BindingFlags.Static);
+			EventInfo? OCSDeactivationInfo = _OCSType.GetEvent(OCSDeactivationEventName, BindingFlags.Public | BindingFlags.Static);
+			if (_getWireHeightAndVoltageInfo == null || _OCSObjectInfo == null || OCSActivationInfo == null || OCSDeactivationInfo == null)
+			{
+				CCLPlugin.Error("Unable to retreive OCS class information; overhead power will be unavailable");
+				_OCSType = null;
+				return;
+			}
+			OCSActivationInfo.AddEventHandler  (null, (Action) SetUpConnectionForAllPantographs);
+			OCSDeactivationInfo.AddEventHandler(null, (Action) SeverConnectionForAllPantographs);
+			SetUpConnectionForAllPantographs();
 		}
 
 		private static void SetUpConnectionForAllPantographs()
 		{
-			Debug.Log("OCS+");
-			if (_OCSType != null)
+			if (_OCSType != null && _OCSObjectInfo != null)
 			{
+				try
+				{
+					_OCSInstance = _OCSObjectInfo.GetValue(null);
+				}
+				catch (InvalidOperationException _)
+				{
+					CCLPlugin.Log("Catenary inactive, overhead power not available");
+					_OCSInstance = null;
+					return;
+				}
+				CCLPlugin.LogVerbose("Cantenary activated, restoring overhead power access");
 				foreach (List<Pantograph> currentCarPantographs in _allPantographs.Values)
 				{
 					foreach (Pantograph currentPantograph in currentCarPantographs)
@@ -94,14 +105,12 @@ namespace CCL.Importer.Implementations
 		
 		private static void SeverConnectionForAllPantographs()
 		{
-			Debug.Log("OCS-");
-			if (_OCSType != null)
+			CCLPlugin.LogVerbose("Cantenary deactivated, turning off overhead power");
+			_OCSInstance = null;
+			foreach (List<Pantograph> currentCarPantographs in _allPantographs.Values)
 			{
-				foreach (List<Pantograph> currentCarPantographs in _allPantographs.Values)
-				{
-					foreach (Pantograph currentPantograph in currentCarPantographs)
-						currentPantograph.GetWireHeightAndVoltage = null;
-				}
+				foreach (Pantograph currentPantograph in currentCarPantographs)
+					currentPantograph.GetWireHeightAndVoltage = null;
 			}
 		}
 		
@@ -110,7 +119,7 @@ namespace CCL.Importer.Implementations
 			TryGetOCSType();
 		}
 
-		private float StripMidpointHeight(TrainCar unit, Transform stripEnd1, Transform stripEnd2)
+		private float GetStripMidpointHeight(TrainCar unit, Transform stripEnd1, Transform stripEnd2)
 		{
 			Vector3 currentStripEndPosition = stripEnd1.position;
 			Vector3 positionDifference      = currentStripEndPosition - _lastStripEndPosition;
@@ -128,6 +137,7 @@ namespace CCL.Importer.Implementations
 			_base              = definition.pantographBase;
 			_stripEnd1         = definition.contactStripFirstEnd;
 			_stripEnd2         = definition.contactStripSecondEnd;
+			_nominalVoltage    = definition.nominalVoltage;
 			_headMovementSpeed = definition.headMovementSpeed;
 			_maximumRaise      = definition.maximumRaise;
 			_contactTolerance  = definition.contactTolerance;
@@ -140,20 +150,49 @@ namespace CCL.Importer.Implementations
 			_pantographToggle         = AddPortReference(definition.toggle     );
 			_pantographLoad           = AddPortReference(definition.currentDraw);
 
+			if (_nominalVoltage <= 0.0f)
+			{
+				CCLPlugin.Error("Nominal voltage negative or zero, pantograph disabled");
+				_disabled = true;
+				return;
+			}
+			if (_headMovementSpeed <= 0.0f)
+			{
+				CCLPlugin.Error("Head movement speed negative or zero, pantograph disabled");
+				_disabled = true;
+				return;
+			}
+			if (_base == null || _stripEnd1 == null || _stripEnd2 == null)
+			{ 
+				CCLPlugin.Error("Pantograph base or contact strip ends not specified, disabling");
+				_disabled = true;
+				return;
+			}
 			_unit = TrainCar.Resolve(definition.pantographBase);
-			Debug.Log($"CCL PNT <{_unit?.name ?? "NULL"}>");
 			TrainCar? unit = _unit;
 			if (unit == null)
+			{
+				CCLPlugin.Error("Car not found, pantograph disabled");
+				_disabled = true;
 				return;
-			if (_stripEnd1 != null && _stripEnd2 != null)
-				_raiseReadOut.Value = _minimumRaise = StripMidpointHeight(unit, _stripEnd1, _stripEnd2);
-			if (_maximumRaise < _minimumRaise + 0.001f)
-				_maximumRaise = _minimumRaise + 0.001f;
+			}
+			
+			_raiseReadOut.Value = _minimumRaise = GetStripMidpointHeight(unit, _stripEnd1, _stripEnd2);
+			if (_maximumRaise <= _minimumRaise)
+			{
+				CCLPlugin.Error("Maximum reach is below initial position, pantograph disabled");
+				_disabled = true;
+				return;
+			}
 			_maximumRaiseDifference = _maximumRaise - _minimumRaise;
-			Debug.Log($"CCL PNT {_minimumRaise} {definition.maximumRaise} {_maximumRaiseDifference} {definition.headMovementSpeed}");
-
 			if (_allPantographs.TryGetValue(unit, out List<Pantograph> installedPantographs))
 			{
+				if (_nextPantographID[unit] >= 30)
+				{
+					CCLPlugin.Error("Cannot have more than 30 pantographs on a car");
+					_disabled = true;
+					return;
+				}
 				_IDMask = 1 << _nextPantographID[unit]++;
 				installedPantographs.Add(this);
 			}
@@ -166,33 +205,20 @@ namespace CCL.Importer.Implementations
 				unit.OnCarAboutToBeDestroyed += OnCarDestroyed;
 			}
 			_IDInvertedMask = ~_IDMask;
-			Debug.Log($"CCL PNT {_IDMask} {_IDInvertedMask} {_allPantographs[unit].Count} {_nextPantographID[unit]}");
-			
 			SetUpCatenaryConnection();
 		}
 
 		private void SetUpCatenaryConnection()
 		{
 			GetWireHeightAndVoltage = null;
-			if (_unitDestroyed || _OCSType == null || _OCSObjectInfo == null || _getWireHeightAndVoltageInfo == null)
+			if (_disabled || _OCSInstance == null || _getWireHeightAndVoltageInfo == null || _unit == null)
 				return;
-
-			object? OCSInstance;
-			try
-			{
-				OCSInstance = _OCSObjectInfo.GetValue(null);
-			}
-			catch (InvalidOperationException _)
-			{
-				return;
-			}
-			Debug.Log($"CCL PNT SYSP {OCSInstance ?? "NULL"}");
-			if (OCSInstance != null)
-			{
-				GetWireHeightAndVoltage = _getWireHeightAndVoltageInfo.CreateDelegate(typeof(Func<Transform, Transform, Transform, Transform, float, (float?, float)>), OCSInstance)
-					as Func<Transform, Transform, Transform, Transform, float, (float?, float)>;
-				Debug.Log($"CCL PNT DLG {GetWireHeightAndVoltage?.ToString() ?? "NULL"}");
-			}
+			GetWireHeightAndVoltage = _getWireHeightAndVoltageInfo.CreateDelegate(typeof(Func<Transform, Transform, Transform, Transform, float, (float?, float)>), _OCSInstance)
+				as Func<Transform, Transform, Transform, Transform, float, (float?, float)>;
+			if (GetWireHeightAndVoltage == null)
+				CCLPlugin.Error($"Unable to connect car {_unit.name}, pantograph ID {_IDMask} to OCS, pantograph will not receive power");
+			else
+				CCLPlugin.LogVerbose($"Connection to OCS successfully established for car {_unit.name}, pantograph ID {_IDMask}");
 		}
 
 		private void OnCarDestroyed()
@@ -200,11 +226,12 @@ namespace CCL.Importer.Implementations
 			TrainCar? unit = _unit;
 			if (unit == null || !_allPantographs.ContainsKey(unit))
 				return;
+			CCLPlugin.LogVerbose($"Removing OCS connections for car {unit.name} ({unit.ID})");
 			unit.OnCarAboutToBeDestroyed -= OnCarDestroyed;
 			foreach (Pantograph currentPantograph in _allPantographs[unit])
 			{
 				currentPantograph.GetWireHeightAndVoltage = null;
-				currentPantograph._unitDestroyed          = true;
+				currentPantograph._disabled               = true;
 			}
 			_allPantographs[unit].Clear();
 			_allPantographs.Remove       (unit);
@@ -216,14 +243,14 @@ namespace CCL.Importer.Implementations
 		private bool trackContactState(float? wireHeight, bool pantographOn)
 		{
 			TrainCar? unit = _unit;
-			if (_unitDestroyed || unit == null || _stripEnd1 == null || _stripEnd2 == null)
+			if (_disabled || unit == null || _stripEnd1 == null || _stripEnd2 == null)
 				return false;
 			bool wasInContact = (_raisedPantographMask[unit] & _IDMask) != 0;
 			bool nowInContact;
 			if (!pantographOn || wireHeight == null)
 				nowInContact = false;
 			else
-				nowInContact = Mathf.Abs((float) wireHeight - StripMidpointHeight(unit, _stripEnd1, _stripEnd2)) <= _contactTolerance;
+				nowInContact = Mathf.Abs((float) wireHeight - GetStripMidpointHeight(unit, _stripEnd1, _stripEnd2)) <= _contactTolerance;
 			if (nowInContact != wasInContact)
 			{
 				if (nowInContact)
@@ -242,14 +269,14 @@ namespace CCL.Importer.Implementations
 		
 		private void Move(float delta, float raiseHeight, bool pantographOn)
 		{
-			if (_unitDestroyed || _unit == null || _stripEnd1 == null || _stripEnd2 == null)
+			if (_disabled || _unit == null || _stripEnd1 == null || _stripEnd2 == null)
 				return;
 			float currentRaise = _raiseReadOut.Value;
 			float targetRaise, raiseDifference;
 			if (pantographOn)
 			{
 				targetRaise     = raiseHeight;
-				raiseDifference = targetRaise - StripMidpointHeight(_unit, _stripEnd1, _stripEnd2);
+				raiseDifference = targetRaise - GetStripMidpointHeight(_unit, _stripEnd1, _stripEnd2);
 			}
 			else
 			{
@@ -274,7 +301,7 @@ namespace CCL.Importer.Implementations
 
 		public override void Tick(float delta)
 		{
-			if (_unitDestroyed || _unit == null || _base == null || _stripEnd1 == null || _stripEnd2 == null)
+			if (_disabled || _unit == null || _base == null || _stripEnd1 == null || _stripEnd2 == null)
 				return;
 			float? wireHeight;
 			int    raisedPantographs = _raisedPantographCount[_unit];
@@ -302,7 +329,7 @@ namespace CCL.Importer.Implementations
 			else
 			{
 				_voltageReadOut.Value           = voltage;
-				_voltageNormalizedReadOut.Value = voltage / 1500.0f;
+				_voltageNormalizedReadOut.Value = voltage / _nominalVoltage;
 			}
 		}
 	}
