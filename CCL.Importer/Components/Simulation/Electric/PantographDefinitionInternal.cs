@@ -11,7 +11,7 @@ namespace CCL.Importer.Components.Simulation.Electric
 	{
 		public Transform? pantographBase;
 		public Transform? contactStripFirstEnd, contactStripSecondEnd;
-		public float      maximumRaise, headMovementSpeed, contactTolerance;
+		public float      nominalVoltage, maximumRaise, headMovementSpeed, contactTolerance;
 
 		public string masterControlFuseId = string.Empty;
 

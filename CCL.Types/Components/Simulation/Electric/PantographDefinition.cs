@@ -11,8 +11,11 @@ namespace CCL.Types.Components.Simulation.Electric
 		public Transform? pantographBase;
 		public Transform? contactStripFirstEnd, contactStripSecondEnd;
 		
-		[Min(0.01f)]
-		public float headMovementSpeed;
+		[Min(1.0f), Tooltip("Used to calculate normalized voltage port")]
+		public float nominalVoltage = 1500.0f;
+		
+		[Min(0.01f), Tooltip("Pantograph head movement speed in m/s")]
+		public float headMovementSpeed = 1.0f;
 
 		[Min(0.0f), Tooltip("Maximum reach height. The minimum height is taken from initial position. Must match the reach from pantograph animation")]
 		public float maximumRaise;
