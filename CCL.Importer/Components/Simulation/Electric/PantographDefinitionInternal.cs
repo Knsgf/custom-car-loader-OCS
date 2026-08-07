@@ -20,7 +20,7 @@ namespace CCL.Importer.Components.Simulation.Electric
 		public readonly PortDefinition pantographRaise           = new(PortType.READONLY_OUT, PortValueType.GENERIC, "PANTOGRAPH_RAISE"           );
 		public readonly PortDefinition pantographRaiseNormalized = new(PortType.READONLY_OUT, PortValueType.STATE  , "PANTOGRAPH_RAISE_NORMALIZED");
 
-		public readonly PortReferenceDefinition toggle             = new(PortValueType.CONTROL        ,              "TOGGLE", writeAllowed: false);
+		public readonly PortReferenceDefinition toggle             = new(PortValueType.CONTROL        ,              "TOGGLE", writeAllowed: true );
 		public readonly PortReferenceDefinition currentDraw        = new(PortValueType.AMPS           ,        "CURRENT_DRAW", writeAllowed: false);
 		public readonly PortReferenceDefinition chargeConsumption  = new(PortValueType.ELECTRIC_CHARGE,  "CHARGE_CONSUMPTION", writeAllowed: true );
 		public readonly PortReferenceDefinition chargeRegeneration = new(PortValueType.ELECTRIC_CHARGE, "CHARGE_REGENERATION", writeAllowed: true );

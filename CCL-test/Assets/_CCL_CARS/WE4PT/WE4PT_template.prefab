@@ -6678,7 +6678,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ID: electricityMeter
   capacity: 1048575
-  defaultValue: 524288
+  defaultValue: 1048575
   type: 5
 --- !u!1 &3573213361315364663
 GameObject:
@@ -8301,7 +8301,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ID: pantographSwitch
   defaultValue: 0
-  saveState: 0
+  saveState: 1
 --- !u!1 &5462463870890324820
 GameObject:
   m_ObjectHideFlags: 0

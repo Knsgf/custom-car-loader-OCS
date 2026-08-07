@@ -42,13 +42,13 @@ namespace CCL.Importer.Implementations
 		private readonly TrainCar?  _unit;
 		private readonly Transform? _base, _stripEnd1, _stripEnd2;
 
-		private readonly float _nominalVoltage, _energyConsumptionFactor;
+		private readonly float _nominalVoltage;
 		private readonly float _minimumRaise = 0.0f, _maximumRaise, _maximumRaiseDifference, _headMovementSpeed, _contactTolerance;
 		private readonly int   _IDMask, _IDInvertedMask;
 		
-		private bool    _disabled             = false, _isInContact = false;
+		private bool    _disabled             = false, _isInContact = false, _gameSettingsSet = false;
 		private Vector3 _lastStripEndPosition = new Vector3(0.0f, _hugeHeight, 0.0f);
-		private float   _lastStripMidpointHeight, _partialConsumption = 0.0f;
+		private float   _lastStripMidpointHeight, _partialConsumption = 0.0f, _energyConsumptionFactor;
 
 		public override bool HasSaveData => true;
 
@@ -112,7 +112,10 @@ namespace CCL.Importer.Implementations
 			foreach (List<Pantograph> currentCarPantographs in _allPantographs.Values)
 			{
 				foreach (Pantograph currentPantograph in currentCarPantographs)
+				{ 
 					currentPantograph.GetWireHeightAndVoltage = null;
+					currentPantograph._pantographToggle.Value = 0.0f;
+				}
 			}
 		}
 		
@@ -140,7 +143,7 @@ namespace CCL.Importer.Implementations
 			_stripEnd1               = definition.contactStripFirstEnd;
 			_stripEnd2               = definition.contactStripSecondEnd;
 			_nominalVoltage          = definition.nominalVoltage;
-			_energyConsumptionFactor = definition.electricChargeConsumptionFactor;
+			_energyConsumptionFactor = definition.electricChargeConsumptionFactor / (1000.0f * 3600.0f);
 			_headMovementSpeed       = definition.headMovementSpeed;
 			_maximumRaise            = definition.maximumRaise;
 			_contactTolerance        = definition.contactTolerance;
@@ -340,7 +343,12 @@ namespace CCL.Importer.Implementations
 
 			if (load != 0.0f)
 			{
-				_partialConsumption += (voltage * load / (1000.0f * 3600.0f)) * (delta * _energyConsumptionFactor);
+				if (!_gameSettingsSet && gameParams != null)
+				{
+					_energyConsumptionFactor *= gameParams.ResourceConsumptionModifier;
+					_gameSettingsSet          = true;
+				}
+				_partialConsumption += voltage * load * delta * _energyConsumptionFactor;
 				while (_partialConsumption >= minimumMeterChange)
 				{
 					_electricityConsumption.Value = minimumMeterChange;
@@ -354,17 +362,23 @@ namespace CCL.Importer.Implementations
 			}
 		}
 
-		public override JObject GetSaveStateData()
+		public override JObject? GetSaveStateData()
 		{
+			if (_disabled)
+				return null;
 			JObject savedData = new();
 			savedData.SetFloat("leftoverEnergy", _partialConsumption);
+			savedData.SetFloat(  "currentRaise", _raiseReadOut.Value);
 			return savedData;
 		}
 
 		public override void SetSaveStateData(JObject? savedData)
 		{
-			if (savedData != null)
+			if (!_disabled && savedData != null)
+			{
 				_partialConsumption = savedData.GetFloat("leftoverEnergy") ?? 0.0f;
+				_raiseReadOut.Value = Mathf.Clamp(savedData.GetFloat("currentRaise") ?? _minimumRaise, _minimumRaise, _maximumRaise);
+			}
 		}
 	}
 }
