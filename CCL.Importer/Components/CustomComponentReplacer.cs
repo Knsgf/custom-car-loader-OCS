@@ -83,6 +83,7 @@ namespace CCL.Importer.Components
             // Electric.
             CreateMap<BatteryCustomCurveDefinition, BatteryCustomCurveDefinitionInternal>().AutoCacheAndMap();
             CreateMap<PantographDefinition, PantographDefinitionInternal>().AutoCacheAndMap();
+            CreateMap<ElectricityMeterDefinition, ElectricityMeterDefinitionInternal>().AutoCacheAndMap();
         }
 
         private void FuseInverterAfter(FuseInverterDefinition fake, FuseInverterDefinitionInternal real)
