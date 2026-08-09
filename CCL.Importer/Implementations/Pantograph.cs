@@ -2,16 +2,22 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
+
+using HarmonyLib;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 using DV.JObjectExtstensions;
+using DV.ServicePenalty;
+using DV.ThingTypes;
+using DV.Utils;
 using LocoSim.Implementations;
 
 using CCL.Importer.Components.Simulation.Electric;
 
 namespace CCL.Importer.Implementations
 {
+	[HarmonyPatch(typeof(SimulatedCarDebtTracker))]
 	internal class Pantograph : SimComponent
 	{
 		const string OCSClassName                      = "electric_sim.catenary.overhead_equipment, electric_sim";
@@ -30,8 +36,9 @@ namespace CCL.Importer.Implementations
 		private static PropertyInfo? _OCSObjectInfo               = null;
 		private static object?       _OCSInstance                 = null;
 
-		private static Dictionary<TrainCar, List<Pantograph>> _allPantographs = new();
-		private static Dictionary<TrainCar, int> _nextPantographID = new(), _raisedPantographMask = new(), _raisedPantographCount = new();
+		private static readonly Dictionary<TrainCar, List<Pantograph>> _allPantographs = new();
+		private static readonly Dictionary<TrainCar, int> _nextPantographID = new(), _raisedPantographMask = new(), _raisedPantographCount = new();
+		private static readonly Dictionary<SimulatedCarDebtTracker, Pantograph> _feeTrackers = new();
 		
 		private Func<Transform, Transform, Transform, Transform, float, (float?, float)>? GetWireHeightAndVoltage = null;
 		
@@ -49,6 +56,8 @@ namespace CCL.Importer.Implementations
 		private bool    _disabled             = false, _isInContact = false, _gameSettingsSet = false;
 		private Vector3 _lastStripEndPosition = new Vector3(0.0f, _hugeHeight, 0.0f);
 		private float   _lastStripMidpointHeight, _partialConsumption = 0.0f, _energyConsumptionFactor;
+
+		private SimulatedCarDebtTracker? _feeTracker = null;
 
 		public override bool HasSaveData => true;
 
@@ -214,6 +223,45 @@ namespace CCL.Importer.Implementations
 			}
 			_IDInvertedMask = ~_IDMask;
 			SetUpCatenaryConnection();
+			
+			if (gameParams == null)
+				_unit.LogicCarInitialized += AdjustEnergyConsumptionFactor;
+			else
+				_energyConsumptionFactor  *= gameParams.ResourceConsumptionModifier;
+		}
+
+		// gameParams might not be ready when the constructor runs, requiring a deferred initialisation
+		private async void AdjustEnergyConsumptionFactor()
+		{
+			if (_unit == null)
+				return;
+			_unit.LogicCarInitialized -= AdjustEnergyConsumptionFactor;
+			//while (gameParams == null)
+			//	await Task.Delay(100);
+			_energyConsumptionFactor *= gameParams.ResourceConsumptionModifier;
+			Debug.Log($"CCL PNT GMPRCM {gameParams.ResourceConsumptionModifier}");
+
+			LocoDebtController? allFees = SingletonBehaviour<LocoDebtController>.Instance;
+			if (allFees == null)
+			{
+				Debug.Log("CCL PNT NF");
+				return;
+			}
+			while (true)
+			{
+				foreach (ExistingLocoDebt? trackedFee in allFees.trackedLocosDebts)
+				{
+					if (trackedFee != null && trackedFee.car == _unit && trackedFee.locoDebtTracker is SimulatedCarDebtTracker feeTracker)
+					{
+						Debug.Log($"CCL PNT FTRK {trackedFee.ID}");
+						_feeTracker              = feeTracker;
+						_feeTrackers[feeTracker] = this;
+						feeTracker.UpdateDebtValues();
+						return;
+					}
+				}
+				await Task.Delay(100);
+			}
 		}
 
 		private void SetUpCatenaryConnection()
@@ -246,6 +294,11 @@ namespace CCL.Importer.Implementations
 			_nextPantographID.Remove     (unit);
 			_raisedPantographMask.Remove (unit);
 			_raisedPantographCount.Remove(unit);
+			if (_feeTracker != null && _feeTrackers.ContainsKey(_feeTracker))
+			{
+				_feeTrackers.Remove(_feeTracker);
+				_feeTracker = null;
+			}
 		}
 
 		private bool trackContactState(float? wireHeight, bool pantographOn)
@@ -343,12 +396,15 @@ namespace CCL.Importer.Implementations
 
 			if (load != 0.0f)
 			{
+				/*
 				if (!_gameSettingsSet && gameParams != null)
 				{
 					_energyConsumptionFactor *= gameParams.ResourceConsumptionModifier;
 					_gameSettingsSet          = true;
 				}
+				*/
 				_partialConsumption += voltage * load * delta * _energyConsumptionFactor;
+				/*
 				while (_partialConsumption >= minimumMeterChange)
 				{
 					_electricityConsumption.Value = minimumMeterChange;
@@ -359,6 +415,7 @@ namespace CCL.Importer.Implementations
 					_electricityRegeneration.Value = minimumMeterChange;
 					_partialConsumption           += minimumMeterChange;
 				}
+				*/
 			}
 		}
 
@@ -378,6 +435,34 @@ namespace CCL.Importer.Implementations
 			{
 				_partialConsumption = savedData.GetFloat("leftoverEnergy") ?? 0.0f;
 				_raiseReadOut.Value = Mathf.Clamp(savedData.GetFloat("currentRaise") ?? _minimumRaise, _minimumRaise, _maximumRaise);
+				_feeTracker?.UpdateDebtValues();
+			}
+		}
+
+		[HarmonyPatch("UpdateDebtValues"), HarmonyPostfix]
+		public static void UpdateDebtValuesPostfix(SimulatedCarDebtTracker? __instance)
+		{
+			Debug.Log($"CCL PNT UDV {__instance != null}");
+			if (__instance == null)
+				return;
+			foreach (DebtComponent currentFee in __instance.GetTrackedDebts())
+			{
+				if (currentFee.Type == ResourceType.ElectricCharge && _feeTrackers.TryGetValue(__instance, out Pantograph pantograph))
+				{ 
+					currentFee.UpdateEndValue(currentFee.EndValue - pantograph._partialConsumption);
+					Debug.Log($"CCL PNT UDV {currentFee.StartToEndDiff} {pantograph._unit?.ID ?? "<null>"}");
+				}
+			}
+		}
+
+		[HarmonyPatch("ResetState"), HarmonyPostfix]
+		public static void ResetStatePostfix(SimulatedCarDebtTracker? __instance)
+		{
+			Debug.Log($"CCL PNT RFS {__instance != null}");
+			if (__instance != null && _feeTrackers.TryGetValue(__instance, out Pantograph pantograph))
+			{
+				Debug.Log($"CCL PNT RFS {pantograph._unit?.ID ?? "<null>"}");
+				pantograph._partialConsumption = 0.0f;
 			}
 		}
 	}

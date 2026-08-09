@@ -36,11 +36,17 @@ MonoBehaviour:
   HideFrontCoupler: 0
   HideBackCoupler: 0
   TrainsetLiveries: []
-  LocoSpawnGroups: []
-  _spawnGroupJson: '[]'
+  LocoSpawnGroups:
+  - Track: 200
+    AdditionalLiveries: []
+  - Track: 1100
+    AdditionalLiveries: []
+  _spawnGroupJson: '[{"AdditionalLiveries":[],"Track":"CoalMineEast"},{"AdditionalLiveries":[],"Track":"IronMineEast"}]'
   UnlockableAsWorkTrain: 0
   UnlockPrice: 30000
   SummonPrice: 5000
+  DemonstratorPartsOrderCost: 0
+  DemonstratorPartsInstallationCost: 0
   CatalogPage: {fileID: 0}
   MaxRepeatedSpawn: 0
   AllowOnRegionalRoutes: 1
