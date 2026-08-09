@@ -36,10 +36,8 @@ namespace CCL.Types.Components.Simulation.Electric
 
 		public override IEnumerable<PortReferenceDefinition> ExposedPortReferences => new[]
 		{
-			new PortReferenceDefinition(DVPortValueType.CONTROL        ,             "TOGGLE", writeAllowed: true ),
-			new PortReferenceDefinition(DVPortValueType.AMPS           ,       "CURRENT_DRAW", writeAllowed: false),
-			new PortReferenceDefinition(DVPortValueType.ELECTRIC_CHARGE, "CHARGE_CONSUMPTION", writeAllowed: true ),
-			new PortReferenceDefinition(DVPortValueType.ELECTRIC_CHARGE,"CHARGE_REGENERATION", writeAllowed: true )
+			new PortReferenceDefinition(DVPortValueType.CONTROL,       "TOGGLE", writeAllowed: true ),
+			new PortReferenceDefinition(DVPortValueType.AMPS   , "CURRENT_DRAW", writeAllowed: false),
 		};
 
 		public IEnumerable<FuseIdField> ExposedFuseIdFields => new[]
