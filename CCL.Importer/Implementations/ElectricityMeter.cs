@@ -36,6 +36,7 @@ namespace CCL.Importer.Implementations
 		public ElectricityMeter(ElectricityMeterDefinitionInternal definition) : base(definition.ID)
 		{
 			_energyConsumptionFactor = definition.electricChargeConsumptionFactor / (1000.0f * 3600.0f);
+			Debug.Log($"CCL EMTR {_energyConsumptionFactor}");
 
 			_electricChargeConsumed = AddPort(definition.electricChargeConsumed);
 			_supplyVoltage          = AddPortReference(definition.supplyVoltage);
@@ -124,8 +125,9 @@ namespace CCL.Importer.Implementations
 		
 		public override void Tick(float delta)
 		{
-			float load = _currentDraw.Value;
-			if (load != 0.0f)
+			float load = _currentDraw.Value, voltage = _supplyVoltage.Value;
+			if (load != 0.0f && !float.IsNaN(   load) && !float.IsInfinity(   load)  
+				             && !float.IsNaN(voltage) && !float.IsInfinity(voltage) && _feeTracker != null)
 			{
 				_energyConsumed              += load * _supplyVoltage.Value * _energyConsumptionFactor * delta;
 				_electricChargeConsumed.Value = (float) _energyConsumed;
@@ -146,6 +148,9 @@ namespace CCL.Importer.Implementations
 			if (savedData != null)
 			{
 				_energyConsumed = savedData.GetDouble("energyConsumed") ?? 0.0;
+				if (double.IsNaN(_energyConsumed) || double.IsInfinity(_energyConsumed))
+					_energyConsumed = 0.0;
+				Debug.Log($"CCL EMTR SAVLD {_energyConsumed}");
 				_feeTracker?.UpdateDebtValues();
 			}
 		}
