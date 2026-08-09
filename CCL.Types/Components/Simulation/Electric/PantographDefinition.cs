@@ -23,9 +23,6 @@ namespace CCL.Types.Components.Simulation.Electric
 		[Min(0.01f), Tooltip("Maximum vertical offset between wire and strip midpoint for a contact to register")]
 		public float contactTolerance = 0.2f;
 
-		[Min(0.0f), Tooltip("Electric charge consumption multiplier for calculating electricity fees. The default setting 0.6666667 is equivalent to $10/kWh")]
-		public float electricChargeConsumptionFactor = 10.0f / 15.0f;
-
 		[FuseId(true)]
 		public string masterControlFuseId = string.Empty;
 
