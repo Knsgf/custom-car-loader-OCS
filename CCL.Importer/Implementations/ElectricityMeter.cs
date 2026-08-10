@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 using HarmonyLib;
@@ -24,6 +25,8 @@ namespace CCL.Importer.Implementations
 		private readonly TrainCar?                _unit                    = null;
 		private          SimulatedCarDebtTracker? _feeTracker              = null;
 		private readonly object                   _initializationInterlock = new();
+		private readonly Task?                    _initializationProgress;
+		private readonly CancellationTokenSource  _initializationInterrupt = new();
 
 		private readonly Port          _electricChargeConsumed;
 		private readonly PortReference _supplyVoltage, _currentDraw;
@@ -36,7 +39,6 @@ namespace CCL.Importer.Implementations
 		public ElectricityMeter(ElectricityMeterDefinitionInternal definition) : base(definition.ID)
 		{
 			_energyConsumptionFactor = definition.electricChargeConsumptionFactor / (1000.0f * 3600.0f);
-			Debug.Log($"CCL EMTR {_energyConsumptionFactor}");
 
 			_electricChargeConsumed = AddPort(definition.electricChargeConsumed);
 			_supplyVoltage          = AddPortReference(definition.supplyVoltage);
@@ -45,50 +47,51 @@ namespace CCL.Importer.Implementations
 			_unit = TrainCar.Resolve(definition.gameObject);
 			if (_unit == null)
 			{
-				Debug.Log("CCL EMTR NGO");
+				CCLPlugin.Error("Train car not found - electricity meter disabled");
 				return;
 			}
 			if (gameParams == null)
 				_unit.LogicCarInitialized += AdjustEnergyConsumptionFactor;
 			else
 				AdjustEnergyConsumptionFactor();
-			//SetupFeeTracker();
+			_initializationProgress        = SetupFeeTracker(_initializationInterrupt.Token);
 			_unit.OnCarAboutToBeDestroyed += DisposeFeeTracker;
 		}
 
 		private void AdjustEnergyConsumptionFactor()
 		{ 
-			Debug.Log("CCL EMTR AECF");
 			if (_unit != null)
 			{
 				_unit.LogicCarInitialized -= AdjustEnergyConsumptionFactor;
 				_energyConsumptionFactor  *= gameParams.ResourceConsumptionModifier;
-				Debug.Log($"CCL EMTR AECF {gameParams.ResourceConsumptionModifier}");
 			}
 		}
 
-		private async void SetupFeeTracker()
+		private async Task SetupFeeTracker(CancellationToken interrupt)
 		{
-			if (_unit == null || _carsWithMeters.Contains(_unit))
+			if (_unit == null)
+				return;
+			if (_carsWithMeters.Contains(_unit))
 			{
-				Debug.Log($"CCL EMTR N/2+");
+				CCLPlugin.Error("Another electricity meter present on the car - duplicate meters disabled");
 				return;
 			}
 			_carsWithMeters.Add(_unit);
-			while (true)
+			while (!interrupt.IsCancellationRequested)
 			{
 				LocoDebtController? allFees = SingletonBehaviour<LocoDebtController>.Instance;
 				lock (_initializationInterlock)
 				{
-					if (!_carsWithMeters.Contains(_unit))
+					if (interrupt.IsCancellationRequested)
 						return;
 					if (allFees?.trackedLocosDebts != null)
 					{
 						foreach (ExistingLocoDebt? trackedFee in allFees.trackedLocosDebts)
 						{
-							if (trackedFee != null && trackedFee.car == _unit && trackedFee.locoDebtTracker is SimulatedCarDebtTracker feeTracker)
+							if (trackedFee != null && trackedFee.car == _unit 
+								&& trackedFee.locoDebtTracker is SimulatedCarDebtTracker feeTracker)
 							{
-								Debug.Log($"CCL EMTR FTRK {trackedFee.ID}");
+								CCLPlugin.LogVerbose($"Set up a fee tracker {trackedFee.ID} for car {_unit.ID}");
 								_feeTracker              = feeTracker;
 								_feeTrackers[feeTracker] = this;
 								feeTracker.UpdateDebtValues();
@@ -97,8 +100,7 @@ namespace CCL.Importer.Implementations
 						}
 					}
 				}
-				Debug.Log($"CCL EMTR FTRK-");
-				await Task.Delay(100);
+				await Task.Delay(100, interrupt);
 			}
 		}
 
@@ -106,6 +108,8 @@ namespace CCL.Importer.Implementations
 		{
 			if (_unit == null)
 				return;
+			if (_initializationProgress != null && !_initializationProgress.IsCompleted)
+				_initializationInterrupt.Cancel();
 			lock (_initializationInterlock)
 			{
 				_carsWithMeters.Remove(_unit);
@@ -115,14 +119,9 @@ namespace CCL.Importer.Implementations
 					_feeTracker = null;
 				}
 			}
+			CCLPlugin.LogVerbose($"Removed fee tracker for car {_unit.ID}");
 		}
 
-		public override void InitializationAfterConnecting()
-		{
-			Debug.Log("CCL EMTR IAC");
-			SetupFeeTracker();
-		}
-		
 		public override void Tick(float delta)
 		{
 			float load = _currentDraw.Value, voltage = _supplyVoltage.Value;
@@ -150,7 +149,6 @@ namespace CCL.Importer.Implementations
 				_energyConsumed = savedData.GetDouble("energyConsumed") ?? 0.0;
 				if (double.IsNaN(_energyConsumed) || double.IsInfinity(_energyConsumed))
 					_energyConsumed = 0.0;
-				Debug.Log($"CCL EMTR SAVLD {_energyConsumed}");
 				_feeTracker?.UpdateDebtValues();
 			}
 		}
@@ -158,7 +156,6 @@ namespace CCL.Importer.Implementations
 		[HarmonyPatch("UpdateDebtValues"), HarmonyPostfix]
 		public static void UpdateDebtValuesPostfix(SimulatedCarDebtTracker? __instance)
 		{
-			Debug.Log($"CCL EMTR UDV {__instance != null}");
 			if (__instance == null)
 				return;
 			foreach (DebtComponent currentFee in __instance.GetTrackedDebts())
@@ -166,7 +163,6 @@ namespace CCL.Importer.Implementations
 				if (currentFee.Type == ResourceType.ElectricCharge && _feeTrackers.TryGetValue(__instance, out ElectricityMeter meter))
 				{ 
 					currentFee.UpdateEndValue(currentFee.EndValue - (float) meter._energyConsumed);
-					Debug.Log($"CCL EMTR UDV {currentFee.StartToEndDiff} {meter._unit?.ID ?? "<null>"}");
 					break;
 				}
 			}
@@ -175,12 +171,8 @@ namespace CCL.Importer.Implementations
 		[HarmonyPatch("ResetState"), HarmonyPostfix]
 		public static void ResetStatePostfix(SimulatedCarDebtTracker? __instance)
 		{
-			Debug.Log($"CCL EMTR RFS {__instance != null}");
 			if (__instance != null && _feeTrackers.TryGetValue(__instance, out ElectricityMeter meter))
-			{
-				Debug.Log($"CCL EMTR RFS {meter._unit?.ID ?? "<null>"}");
 				meter._energyConsumed = 0.0;
-			}
 		}
 	}
 }
