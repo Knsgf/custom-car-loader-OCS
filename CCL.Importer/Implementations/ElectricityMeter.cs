@@ -149,6 +149,7 @@ namespace CCL.Importer.Implementations
 				_energyConsumed = savedData.GetDouble("energyConsumed") ?? 0.0;
 				if (double.IsNaN(_energyConsumed) || double.IsInfinity(_energyConsumed))
 					_energyConsumed = 0.0;
+				_electricChargeConsumed.Value = (float) _energyConsumed;
 				_feeTracker?.UpdateDebtValues();
 			}
 		}
@@ -172,7 +173,10 @@ namespace CCL.Importer.Implementations
 		public static void ResetStatePostfix(SimulatedCarDebtTracker? __instance)
 		{
 			if (__instance != null && _feeTrackers.TryGetValue(__instance, out ElectricityMeter meter))
-				meter._energyConsumed = 0.0;
+			{
+				meter._energyConsumed               = 0.0;
+				meter._electricChargeConsumed.Value = 0.0f;
+			}
 		}
 	}
 }
