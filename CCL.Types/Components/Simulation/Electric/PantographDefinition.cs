@@ -6,7 +6,7 @@ using CCL.Types.Proxies.Ports;
 namespace CCL.Types.Components.Simulation.Electric
 {
 	[AddComponentMenu("CCL/Components/Simulation/Electric/Pantograph Definition")]
-	public class PantographDefinition : SimComponentDefinitionProxy, IHasFuseIdFields
+	public class PantographDefinition : SimComponentDefinitionProxy, IHasFuseIdFields, ISelfValidation
 	{
 		public Transform? pantographBase;
 		public Transform? contactStripFirstEnd, contactStripSecondEnd;
@@ -44,5 +44,23 @@ namespace CCL.Types.Components.Simulation.Electric
 		{
 			new FuseIdField(this, nameof(masterControlFuseId), masterControlFuseId, required: true)
 		};
+
+		public SelfValidationResult Validate(out string message, out string? highlight)
+		{
+			if (pantographBase        == null)
+				return this.FailForNull(nameof(pantographBase       ), out message, out highlight);
+			if (contactStripFirstEnd  == null)
+				return this.FailForNull(nameof(contactStripFirstEnd ), out message, out highlight);
+			if (contactStripSecondEnd == null)
+				return this.FailForNull(nameof(contactStripSecondEnd), out message, out highlight);
+			float initialHeight = Mathf.Max(contactStripFirstEnd.position.y, contactStripSecondEnd.position.y);
+			if (maximumRaise <= initialHeight)
+			{
+				message   = $"{nameof(maximumRaise)} is below pantograph's initial position ({initialHeight})";
+				highlight =    nameof(maximumRaise);
+				return SelfValidationResult.Fail;
+			}
+			return this.Pass(out message, out highlight);
+		}
 	}
 }
