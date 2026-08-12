@@ -6969,8 +6969,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ID: dummyElectricityContainer
-  capacity: 1048575
-  defaultValue: 1048575
+  capacity: 1
+  defaultValue: 1
   type: 5
 --- !u!1 &4422643288910313896
 GameObject:
