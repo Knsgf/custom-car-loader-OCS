@@ -8,6 +8,7 @@ using UnityEngine;
 
 using DV.JObjectExtstensions;
 using DV.ServicePenalty;
+using DV.Simulation.Cars;
 using DV.ThingTypes;
 using DV.Utils;
 using LocoSim.Implementations;
@@ -19,15 +20,26 @@ namespace CCL.Importer.Implementations
 	[HarmonyPatch(typeof(SimulatedCarDebtTracker))]
 	public class ElectricityMeter : SimComponent
 	{
+		[HarmonyPatch(typeof(SimController), "OnLogicCarInitialized")]
+		private static class LogicCarInitializer
+		{
+			public static void Postfix(SimController __instance)
+			{
+				foreach (ElectricityMeter meter in _metersWaitingForSetup)
+					meter.SetupFeeTracker();
+				_metersWaitingForSetup.ExceptWith(_metersFullySetUp);
+				_metersFullySetUp.Clear();
+			}
+		}
+		
 		private static readonly Dictionary<SimulatedCarDebtTracker, ElectricityMeter> _feeTrackers = new();
-		private static readonly HashSet<TrainCar> _carsWithMeters = new();
+		
+		private static readonly HashSet<        TrainCar> _carsWithMeters     = new();
+		private static readonly HashSet<ElectricityMeter> _metersWaitingForSetup = new(), _metersFullySetUp = new();
 		
 		private readonly TrainCar?                _unit                    = null;
 		private          SimulatedCarDebtTracker? _feeTracker              = null;
-		private readonly object                   _initializationInterlock = new();
-		private readonly Task?                    _initializationProgress;
-		private readonly CancellationTokenSource  _initializationInterrupt = new();
-
+		
 		private readonly Port          _electricChargeConsumed;
 		private readonly PortReference _supplyVoltage, _currentDraw;
 
@@ -50,11 +62,17 @@ namespace CCL.Importer.Implementations
 				CCLPlugin.Error("Train car not found - electricity meter disabled");
 				return;
 			}
+			if (_carsWithMeters.Contains(_unit))
+			{
+				CCLPlugin.Error("Another electricity meter present on the car - duplicate meters disabled");
+				return;
+			}
+			_carsWithMeters.Add(_unit);
+			_metersWaitingForSetup.Add(this);
 			if (gameParams == null)
 				_unit.LogicCarInitialized += AdjustEnergyConsumptionFactor;
 			else
 				AdjustEnergyConsumptionFactor();
-			_initializationProgress        = SetupFeeTracker(_initializationInterrupt.Token);
 			_unit.OnCarAboutToBeDestroyed += DisposeFeeTracker;
 		}
 
@@ -67,40 +85,24 @@ namespace CCL.Importer.Implementations
 			}
 		}
 
-		private async Task SetupFeeTracker(CancellationToken interrupt)
+		private void SetupFeeTracker()
 		{
-			if (_unit == null)
-				return;
-			if (_carsWithMeters.Contains(_unit))
+			LocoDebtController? allFees = SingletonBehaviour<LocoDebtController>.Instance;
+			if (allFees?.trackedLocosDebts != null)
 			{
-				CCLPlugin.Error("Another electricity meter present on the car - duplicate meters disabled");
-				return;
-			}
-			_carsWithMeters.Add(_unit);
-			while (!interrupt.IsCancellationRequested)
-			{
-				LocoDebtController? allFees = SingletonBehaviour<LocoDebtController>.Instance;
-				lock (_initializationInterlock)
+				foreach (ExistingLocoDebt? trackedFee in allFees.trackedLocosDebts)
 				{
-					if (interrupt.IsCancellationRequested)
-						return;
-					if (allFees?.trackedLocosDebts != null)
+					if (trackedFee != null && trackedFee.car == _unit 
+						&& trackedFee.locoDebtTracker is SimulatedCarDebtTracker feeTracker)
 					{
-						foreach (ExistingLocoDebt? trackedFee in allFees.trackedLocosDebts)
-						{
-							if (trackedFee != null && trackedFee.car == _unit 
-								&& trackedFee.locoDebtTracker is SimulatedCarDebtTracker feeTracker)
-							{
-								CCLPlugin.LogVerbose($"Set up a fee tracker {trackedFee.ID} for car {_unit.ID}");
-								_feeTracker              = feeTracker;
-								_feeTrackers[feeTracker] = this;
-								feeTracker.UpdateDebtValues();
-								return;
-							}
-						}
+						CCLPlugin.LogVerbose($"Set up a fee tracker {trackedFee.ID} for car {_unit.ID}");
+						_feeTracker              = feeTracker;
+						_feeTrackers[feeTracker] = this;
+						_metersFullySetUp.Add(this);
+						feeTracker.UpdateDebtValues();
+						return;
 					}
 				}
-				await Task.Delay(100, interrupt);
 			}
 		}
 
@@ -108,16 +110,12 @@ namespace CCL.Importer.Implementations
 		{
 			if (_unit == null)
 				return;
-			if (_initializationProgress != null && !_initializationProgress.IsCompleted)
-				_initializationInterrupt.Cancel();
-			lock (_initializationInterlock)
+			_metersWaitingForSetup.Remove(this);
+			_carsWithMeters.Remove(_unit);
+			if (_feeTracker != null && _feeTrackers.ContainsKey(_feeTracker))
 			{
-				_carsWithMeters.Remove(_unit);
-				if (_feeTracker != null && _feeTrackers.ContainsKey(_feeTracker))
-				{
-					_feeTrackers.Remove(_feeTracker);
-					_feeTracker = null;
-				}
+				_feeTrackers.Remove(_feeTracker);
+				_feeTracker = null;
 			}
 			CCLPlugin.LogVerbose($"Removed fee tracker for car {_unit.ID}");
 		}
@@ -153,7 +151,7 @@ namespace CCL.Importer.Implementations
 				_feeTracker?.UpdateDebtValues();
 			}
 		}
-	
+
 		[HarmonyPatch("UpdateDebtValues"), HarmonyPostfix]
 		public static void UpdateDebtValuesPostfix(SimulatedCarDebtTracker? __instance)
 		{
