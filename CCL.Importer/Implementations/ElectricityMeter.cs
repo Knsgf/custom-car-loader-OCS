@@ -55,7 +55,6 @@ namespace CCL.Importer.Implementations
 
 			if (!string.IsNullOrEmpty(definition.masterControlFuseId))
 				_masterFuse = AddFuseReference(definition.masterControlFuseId);
-			Debug.Log($"CCL EMTR {_masterFuse?.ToString() ?? "<null>"}");
 			_electricChargeConsumed = AddPort(definition.electricChargeConsumed);
 			_supplyVoltage          = AddPortReference(definition.supplyVoltage);
 			_currentDraw            = AddPortReference(definition.currentDraw  );
