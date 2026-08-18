@@ -15,6 +15,8 @@ namespace CCL.Importer.Components.Simulation.Electric
 	{
 		public float electricChargeConsumptionFactor;
 
+		public string masterControlFuseId = string.Empty;
+
 		public readonly PortDefinition electricChargeConsumed = new(PortType.READONLY_OUT, PortValueType.ELECTRIC_CHARGE, "ENERGY_CONSUMED");
 
 		public readonly PortReferenceDefinition supplyVoltage = new(PortValueType.VOLTS, "SUPPLY_VOLTAGE", writeAllowed: false);

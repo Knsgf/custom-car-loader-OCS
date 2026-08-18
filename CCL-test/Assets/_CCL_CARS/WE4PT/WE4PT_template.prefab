@@ -6711,6 +6711,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ID: electricityMeter
   electricChargeConsumptionFactor: 0.6666667
+  masterControlFuseId: fusebox.ELECTRICS_MAIN
 --- !u!1 &3573213361315364663
 GameObject:
   m_ObjectHideFlags: 0

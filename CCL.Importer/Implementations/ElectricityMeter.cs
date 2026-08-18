@@ -40,8 +40,9 @@ namespace CCL.Importer.Implementations
 		private readonly TrainCar?                _unit                    = null;
 		private          SimulatedCarDebtTracker? _feeTracker              = null;
 		
-		private readonly Port          _electricChargeConsumed;
-		private readonly PortReference _supplyVoltage, _currentDraw;
+		private readonly FuseReference? _masterFuse = null;
+		private readonly Port           _electricChargeConsumed;
+		private readonly PortReference  _supplyVoltage, _currentDraw;
 
 		private float  _energyConsumptionFactor;
 		private double _energyConsumed = 0.0;
@@ -52,6 +53,9 @@ namespace CCL.Importer.Implementations
 		{
 			_energyConsumptionFactor = definition.electricChargeConsumptionFactor / (1000.0f * 3600.0f);
 
+			if (!string.IsNullOrEmpty(definition.masterControlFuseId))
+				_masterFuse = AddFuseReference(definition.masterControlFuseId);
+			Debug.Log($"CCL EMTR {_masterFuse?.ToString() ?? "<null>"}");
 			_electricChargeConsumed = AddPort(definition.electricChargeConsumed);
 			_supplyVoltage          = AddPortReference(definition.supplyVoltage);
 			_currentDraw            = AddPortReference(definition.currentDraw  );
@@ -174,6 +178,7 @@ namespace CCL.Importer.Implementations
 			{
 				meter._energyConsumed               = 0.0;
 				meter._electricChargeConsumed.Value = 0.0f;
+				meter._masterFuse?.ChangeState(false);
 			}
 		}
 	}
