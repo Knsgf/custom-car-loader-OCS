@@ -240,7 +240,7 @@ namespace CCL.Importer.Implementations
 			_raisedPantographCount.Remove(unit);
 		}
 
-		private bool trackContactState(float? wireHeight, bool pantographOn)
+		private bool TrackContactState(float? wireHeight, bool pantographOn)
 		{
 			TrainCar? unit = _unit;
 			if (_disabled || unit == null || _stripEnd1 == null || _stripEnd2 == null)
@@ -285,14 +285,14 @@ namespace CCL.Importer.Implementations
 			}
 			if (raiseDifference > 0.006f)
 			{
-				float movementSpeed           = Mathf.Min(_headMovementSpeed, Mathf.Abs(raiseDifference) / 0.2f);
+				float movementSpeed           = Mathf.Min(_headMovementSpeed, raiseDifference / 0.2f);
 				currentRaise                  = Mathf.Min(currentRaise + movementSpeed * delta, _maximumRaise);
 				_raiseReadOut.Value           = currentRaise;
 				_raiseNormalizedReadOut.Value = Mathf.Clamp((currentRaise - _minimumRaise) / _maximumRaiseDifference, 0.0f, 0.999f);
 			}
 			else if (raiseDifference < -0.006f)
 			{
-				float movementSpeed           = Mathf.Min(_headMovementSpeed, Mathf.Abs(raiseDifference) / 0.2f);
+				float movementSpeed           = Mathf.Min(_headMovementSpeed, raiseDifference / (-0.2f));
 				currentRaise                  = Mathf.Max(currentRaise - movementSpeed * delta, _minimumRaise);
 				_raiseReadOut.Value           = currentRaise;
 				_raiseNormalizedReadOut.Value = Mathf.Clamp((currentRaise - _minimumRaise) / _maximumRaiseDifference, 0.0f, 0.999f);
@@ -303,7 +303,6 @@ namespace CCL.Importer.Implementations
 		{
 			if (_disabled || _unit == null || _base == null || _stripEnd1 == null || _stripEnd2 == null)
 				return;
-			float? wireHeight;
 			int    raisedPantographs = _raisedPantographCount[_unit];
 			bool   pantographOn      = _pantographToggle.Value >= 0.5f && _masterFuse.State;
 			float  load;
@@ -314,7 +313,8 @@ namespace CCL.Importer.Implementations
 				float inputLoad = _pantographLoad.Value;
 				load            = (float.IsNaN(inputLoad) || float.IsInfinity(inputLoad)) ? 0.0f : (inputLoad / raisedPantographs);
 			}
-			float voltage;
+			float  voltage;
+			float? wireHeight;
 			if (pantographOn && GetWireHeightAndVoltage != null)
 				(wireHeight, voltage) = GetWireHeightAndVoltage(_unit.transform, _base, _stripEnd1, _stripEnd2, load);
 			else
@@ -324,7 +324,7 @@ namespace CCL.Importer.Implementations
 			}
 			float raiseHeight = !pantographOn ? _minimumRaise : (wireHeight ?? _maximumRaise);
 			Move(delta, raiseHeight, pantographOn);
-			_isInContact = trackContactState(wireHeight, pantographOn);
+			_isInContact = TrackContactState(wireHeight, pantographOn);
 			if (!_isInContact)
 				_voltageReadOut.Value = _voltageNormalizedReadOut.Value = 0.0f;
 			else

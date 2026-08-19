@@ -129,7 +129,7 @@ namespace CCL.Importer.Implementations
 			if (load != 0.0f && !float.IsNaN(   load) && !float.IsInfinity(   load)  
 				             && !float.IsNaN(voltage) && !float.IsInfinity(voltage) && _feeTracker != null)
 			{
-				_energyConsumed              += load * _supplyVoltage.Value * _energyConsumptionFactor * delta;
+				_energyConsumed              += load * voltage * _energyConsumptionFactor * delta;
 				_electricChargeConsumed.Value = (float) _energyConsumed;
 			}
 		}
