@@ -1,6 +1,8 @@
 using System.Collections.Generic;
+
 using HarmonyLib;
 using Newtonsoft.Json.Linq;
+using UnityEngine;
 
 using DV.JObjectExtstensions;
 using DV.ServicePenalty;
@@ -160,7 +162,7 @@ namespace CCL.Importer.Implementations
 			{
 				if (currentFee.Type == ResourceType.ElectricCharge && _feeTrackers.TryGetValue(__instance, out ElectricityMeter meter))
 				{ 
-					currentFee.UpdateEndValue(currentFee.EndValue - (float) meter._energyConsumed);
+					currentFee.UpdateEndValue(currentFee.EndValue - Mathf.Max((float) meter._energyConsumed, 0.0f));
 					break;
 				}
 			}
