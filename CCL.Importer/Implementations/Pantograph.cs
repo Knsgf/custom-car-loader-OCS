@@ -18,8 +18,6 @@ namespace CCL.Importer.Implementations
 		const string OCSActivationEventName            = "catenary_activated";
 		const string OCSDeactivationEventName          = "catenary_deactivated";
 
-		const int initializationTimeOut = 3 * 60, retryTime = 5;
-
 		private static readonly float _hugeHeight = Mathf.Sqrt(float.MaxValue / 2.0f);
 		
 		private static Type?         _OCSType                     = null;
@@ -47,15 +45,11 @@ namespace CCL.Importer.Implementations
 		private Vector3 _lastStripEndPosition = new Vector3(0.0f, _hugeHeight, 0.0f);
 		private float   _lastStripMidpointHeight;
 
-		private static async void TryGetOCSType()
+		private static void TryGetOCSType()
 		{
-			for (int remainingTime = initializationTimeOut; remainingTime >= 0; remainingTime -= retryTime)
-			{
-				_OCSType = Type.GetType(OCSClassName, throwOnError: false);
-				if (_OCSType != null)
-					break;
-				await Task.Delay(retryTime * 1000);
-			}
+			if (_OCSType != null)
+				return;
+			_OCSType = Type.GetType(OCSClassName, throwOnError: false);
 			if (_OCSType == null)
 			{
 				CCLPlugin.Log("Catenary not installed; overhead power will be unavailable");
@@ -114,11 +108,6 @@ namespace CCL.Importer.Implementations
 			}
 		}
 		
-		static Pantograph()
-		{
-			TryGetOCSType();
-		}
-
 		private float GetStripMidpointHeight(TrainCar unit, Transform stripEnd1, Transform stripEnd2)
 		{
 			Vector3 currentStripEndPosition = stripEnd1.position;
@@ -134,6 +123,8 @@ namespace CCL.Importer.Implementations
 
 		public Pantograph(PantographDefinitionInternal definition): base(definition.ID)
 		{
+			TryGetOCSType();
+			
 			_base              = definition.pantographBase;
 			_stripEnd1         = definition.contactStripFirstEnd;
 			_stripEnd2         = definition.contactStripSecondEnd;
